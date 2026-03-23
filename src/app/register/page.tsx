@@ -4,12 +4,14 @@ import Welcome from '@/components/Welcome'
 import React, { useState } from 'react'
 
 function Register() {
-    const[step,setStep] = useState(1)
+  const [step, setStep] = useState(1)
+
   return (
     <div>
-        {step === 1 ? <Welcome nextStep={setStep}/> : <RegisterForm previousStep={function (s: Number): void {
-              throw new Error('Function not implemented.')
-          } } />}
+      {step === 1 
+        ? <Welcome nextStep={setStep}/> 
+        : <RegisterForm previousStep={setStep} />
+      }
     </div>
   )
 }

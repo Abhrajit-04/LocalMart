@@ -1,16 +1,155 @@
-import { ArrowLeft} from 'lucide-react'
-import React from 'react'
-type propType={
-  previousStep:(s:Number)=>void
+import { ArrowLeft, Store, User, Mail, Lock, EyeOff, Eye, LogIn, Loader2 } from 'lucide-react'
+import React, { useState } from 'react'
+import { motion } from "framer-motion"
+import Image from 'next/image'
+import googleImage from"@/assets/google.png"
+import axios from 'axios'
+import {FormEvent} from "react"
+
+type propType = {
+  previousStep: (s: number) => void
 }
-function RegisterForm({previousStep}:propType) {
+
+function RegisterForm({ previousStep }: propType) {
+  const [name, setName] =useState("")
+  const [email, setEmail] =useState("")
+  const [password, setPassword] =useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const handleRegister=async (e:React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    try{
+        const result=await axios.post("/api/auth/register",{name,email,password})
+        console.log(result.data)
+        setLoading(false)
+    } catch(error){
+        console.log(error)
+        setLoading(false)
+    }
+  }
   return (
-    <div
-    className='flex flex-cool items-center justify-center min-h-screen px-6 py-10 bg-white relative'>
-      <div className='absolute top-6 left-6 flex items-center gap-2 text-green-700 hover:text-green-800 transition-colors cursor-pointer'>
+    <div className='flex flex-col items-center justify-center min-h-screen px-6 py-10 bg-white relative'>
+      
+      {/* Back Button */}
+      <div
+        onClick={() => previousStep(1)}
+        className='absolute top-6 left-6 flex items-center gap-2 text-green-700 hover:text-green-800 transition-colors cursor-pointer'
+      >
         <ArrowLeft className='w-5 h-5'/>
         <span className='font-medium'>Back</span>
       </div>
+
+      {/* Heading */}
+      <motion.h1 
+        initial={{ y: -10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className='text-4xl font-extrabold text-green-700 mb-2'
+      >
+        Create Account
+      </motion.h1>
+
+      <p className='text-gray-600 mb-8 flex items-center gap-2'>
+        Join LoKart Today <Store className='w-5 h-5 text-orange-400'/>
+      </p>
+
+      {/* Form */}
+      <motion.form 
+          onSubmit={handleRegister}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className='flex flex-col gap-5 w-full max-w-sm'
+      >
+
+        {/* Name */}
+        <div className='relative'>
+          <User className='absolute left-3 top-3.5 w-5 h-5 text-gray-400'/>
+          <input
+            type="text"
+            placeholder='Your Name'
+            className='w-full border border-gray-300 rounded-xl py-3 pl-10 pr-4 
+            text-gray-800 bg-gray-50 focus:ring-2 focus:ring-green-500 focus:outline-none'
+            onChange={(e) => setName(e.target.value)}
+            value={name}
+          />
+        </div>
+
+        {/* Email */}
+        <div className='relative'>
+          <Mail className='absolute left-3 top-3.5 w-5 h-5 text-gray-400'/>
+          <input
+            type="email"
+            placeholder='Email Address'
+            className='w-full border border-gray-300 rounded-xl py-3 pl-10 pr-4 
+            text-gray-800 bg-gray-50 focus:ring-2 focus:ring-green-500 focus:outline-none'
+            onChange={(e) => setEmail(e.target.value)}
+            value={email}
+          />
+        </div>
+
+        {/* Password */}
+        <div className='relative'>
+          <Lock className='absolute left-3 top-3.5 w-5 h-5 text-gray-400'/>
+        <input
+           type={showPassword ? "text" : "password"}
+           placeholder='Password'
+            className='w-full border border-gray-300 rounded-xl py-3 pl-10 pr-10 
+               text-gray-800 bg-gray-50 focus:ring-2 focus:ring-green-500 focus:outline-none appearance-none'
+           onChange={(e) => setPassword(e.target.value)}
+           value={password}
+  />
+          {
+    showPassword ? (
+      <EyeOff
+        className='absolute right-3 top-3.5 w-5 h-5 text-gray-500 cursor-pointer'
+        onClick={() => setShowPassword(false)}
+      />
+    ) : (
+      <Eye
+        className='absolute right-3 top-3.5 w-5 h-5 text-gray-500 cursor-pointer'
+        onClick={() => setShowPassword(true)}
+      />
+    )
+  }
+        </div>
+     {
+(() => {
+  const formValidation = name !== "" && email !== "" && password !== "";
+
+  return (
+    <button
+      disabled={!formValidation || loading}
+      className={`w-full font-semibold py-3 rounded-xl transition-all duration-200 shadow-md inline-flex items-center justify-center gap-2 ${
+        formValidation
+          ? "bg-green-600 hover:bg-green-700 text-white"
+          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+      }`}
+    >
+      {loading?<Loader2 className='w-5 h-5 animate-spin'/>:" Register"}
+     
+    </button>
+  );
+})()}
+
+<div className='flex items-center gap-2 justify-center mt-2 text-gray-600'>
+  <span className='flex-1 h-px bg-gray-300'></span>
+  OR
+  <span className='flex-1 h-px bg-gray-300'></span>
+</div>
+
+<button className='w-full flex items-center justify-center gap-3 border border-gray-300 hover:bg-gray-50 py-3 rounded-xl text-gray-700 font-medium transition-all duartion-200'>
+  <Image src={googleImage} width={20} height={20} alt='google'/>
+  continue with Google
+</button>
+
+    </motion.form>
+
+    <p className='cursor-pointer text-gray-600 mt-6 text-sm flex items-center gap-1'>
+      Already have an account? <LogIn className='w-4 h-4'/> <span className='text-green-600'>Sign in</span>
+    </p>
+
     </div>
   )
 }
