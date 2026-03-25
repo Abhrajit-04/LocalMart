@@ -7,6 +7,8 @@ import axios from 'axios'
 import {FormEvent} from "react"
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import { routerServerGlobal } from 'next/dist/server/lib/router-utils/router-server-context'
+import router from 'next/router'
 
 type propType = {
   previousStep: (s: number) => void
@@ -24,7 +26,7 @@ function RegisterForm({ previousStep }: propType) {
     setLoading(true)
     try{
         const result=await axios.post("/api/auth/register",{name,email,password})
-        console.log(result.data)
+        router.push("/login")
         setLoading(false)
     } catch(error){
         console.log(error)
@@ -142,12 +144,13 @@ function RegisterForm({ previousStep }: propType) {
   <span className='flex-1 h-px bg-gray-300'></span>
 </div>
 
-<button className='w-full flex items-center justify-center gap-3 border border-gray-300 hover:bg-gray-50 py-3 rounded-xl text-gray-700 font-medium transition-all duartion-200' onClick={()=>signIn("google")}>
+  <div className='w-full flex items-center justify-center gap-3 border border-gray-300 hover:bg-gray-50 py-3 rounded-xl text-gray-700 font-medium transition-all duartion-200' onClick={()=>signIn("google",{callbackUrl:"/"})}>
   <Image src={googleImage} width={20} height={20} alt='google'/>
   continue with Google
-</button>
+  </div>
 
     </motion.form>
+    
 
     <p className='cursor-pointer text-gray-600 mt-6 text-sm flex items-center gap-1' onClick={()=>userouter.push("/login")}>
       Already have an account? <LogIn className='w-4 h-4'/> <span className='text-green-600'>Sign in</span>

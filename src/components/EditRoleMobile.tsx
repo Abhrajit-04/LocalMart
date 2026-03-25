@@ -1,0 +1,67 @@
+'use client'
+import { useState } from 'react'
+import React from 'react'
+import { motion } from "motion/react"
+import { Bike, User, UserCog } from 'lucide-react'
+
+function EditRoleMobile() {
+  const [roles, setRoles] = useState([
+    { id: "admin", label: "Admin", icon: UserCog },
+    { id: "user", label: "User", icon: User },
+    { id: "deliveryBoy", label: "DeliveryBoy", icon: Bike }
+  ])
+  const [selectedRole, setSelectedRole] = useState("")
+
+  return (
+    <div className="flex flex-col min-h-screen p-6 w-full bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 relative">
+      <motion.h1 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className='text-3xl md:text-4xl font-extrabold text-green-700 text-center mt-8'
+      >
+        Select Your Role
+      </motion.h1>
+
+      <div className='flex flex-col md:flex-row justify-center items-center gap-6 mt-10'>
+        {roles.map((role) => {
+          const Icon = role.icon
+          const isSelected = selectedRole === role.id   
+          return (
+            <motion.div 
+            whileHover={{ scale: 1.05 }}
+            key={role.id}
+            whileTap={{scale:0.94}}
+            onClick={()=>setSelectedRole(role.id)}
+            className={`flex flex-col items-center justify-center w-48 h-44 rounded-2xl border-2 transition-all
+             ${isSelected 
+                 ? "border-green-600 bg-green-100 shadow-xl scale-105" 
+                : "border-gray-200 bg-white hover:bg-gray-50 hover:border-green-400 shadow-md cursor-pointer"
+             }`}>
+              <Icon className='w-6 h-6 text-green-600'/>
+              <span className='text-lg font-medium text-gray-800'>{role.label}</span>
+            </motion.div>
+          )
+        })}
+      </div>
+      <motion.div
+        initial={{opacity:0}}
+        animate={{opacity:1}}
+        transition={{duration:0.6,delay:0.5}}
+        className='flex flex-col items-center mt-10'
+      >
+        <label htmlFor="mobile" className='text-gray-700 font-medium mb-2'>
+            Enter Your Mobile Number
+        </label>
+        <input
+            type="tel"
+            id="mobile"
+            placeholder='Mobile Number'
+            className="w-64 md:w-80 px-4 py-3 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-300 shadow-sm text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:shadow-lg focus:-translate-y-0.5 focus:outline-none transition-all duration-300"
+        />
+      </motion.div>
+    </div>
+  )
+}
+
+export default EditRoleMobile
