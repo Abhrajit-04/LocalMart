@@ -8,7 +8,7 @@ export async function POST(request:NextRequest) {
         await connectDb()
         const {role,mobile}=await request.json()
         const session=await auth()
-        const user=await User.findOneAndUpdate({email:session?.user?.email},{role,mobile})
+        const user=await User.findOneAndUpdate({email:session?.user?.email},{role,mobile},{new:true})
         if(!user){
             return NextResponse.json({message:"User not found"},{status:400})
         }

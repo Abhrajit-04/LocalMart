@@ -2,7 +2,9 @@
 import { useState } from 'react'
 import React from 'react'
 import { motion } from "motion/react"
-import { Bike, User, UserCog } from 'lucide-react'
+import { ArrowRight, Bike, User, UserCog } from 'lucide-react'
+import axios from 'axios'
+import { redirect } from 'next/navigation'
 
 function EditRoleMobile() {
   const [roles, setRoles] = useState([
@@ -11,9 +13,20 @@ function EditRoleMobile() {
     { id: "deliveryBoy", label: "DeliveryBoy", icon: Bike }
   ])
   const [selectedRole, setSelectedRole] = useState("")
-
+  const [mobile, setMobile] = useState("")
+  const handleEdit=async ()=>{
+    try {
+        const result=await axios.post("/api/user/edit-role-mobile", {
+            role:selectedRole,
+            mobile
+        })
+        redirect("/")
+    } catch (error) {
+        console.log(error)
+    }
+  }
   return (
-    <div className="flex flex-col min-h-screen p-6 w-full bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 relative">
+    <div className="flex flex-col items-center min-h-screen p-6 w-full bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 relative">
       <motion.h1 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -58,8 +71,21 @@ function EditRoleMobile() {
             id="mobile"
             placeholder='Mobile Number'
             className="w-64 md:w-80 px-4 py-3 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-300 shadow-sm text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:shadow-lg focus:-translate-y-0.5 focus:outline-none transition-all duration-300"
+            onChange={(e)=>setMobile(e.target.value)}
         />
       </motion.div>
+      <motion.button
+      initial={{opacity:0,y:20}}
+      animate={{opacity:1,y:0}}
+      transition={{delay:0.7}}
+      disabled={!selectedRole || mobile.length!==10}
+        className={`inline-flex items-center gap-2 font-semibold py-3 px-8 rounded-2xl shadow-md transition-all duration-200 w-[200px] mt-10 ${selectedRole && mobile.length===10? "bg-green-600 text-white hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 animate-hover" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
+        onClick={handleEdit}>
+        Go To Home
+        <ArrowRight/>
+
+
+      </motion.button>
     </div>
   )
 }
