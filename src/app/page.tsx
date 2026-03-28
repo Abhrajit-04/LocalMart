@@ -1,9 +1,11 @@
 import { auth } from '@/auth'
 import EditRoleMobile from '@/components/EditRoleMobile'
+import Nav from '@/components/Nav'
 import connectDb from '@/lib/db'
 import User from '@/models/user.model'
 import { redirect } from 'next/navigation'
 import React from 'react'
+import { json } from 'stream/consumers'
 
 async function Home() {
   await connectDb()
@@ -19,16 +21,17 @@ async function Home() {
     redirect("/login")
   }
 
-  const incomplete = !user.mobile || !user.role
+  const incomplete = !user.mobile || !user.role || (!user.mobile && user.role=="user")
 
   if (incomplete) {
     return <EditRoleMobile />
   }
-
+  const plainuser=JSON.parse(JSON.stringify(user))
+  
   return (
-    <div>
-      
-    </div>
+    <>
+      <Nav user={plainuser}/>
+    </>
   )
 }
 
