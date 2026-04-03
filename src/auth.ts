@@ -75,7 +75,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true
     },
 
-    async jwt({ token, user }) {
+    async jwt({ token, user , trigger , session}) {
       if (user) {
         token.id = user.id
         token.name = user.name
@@ -83,6 +83,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = user.role
         token.image = user.image // ADD THIS
       }
+    if(trigger=="update"){
+        token.role = session.role
+    }
       return token
     },
 
@@ -108,5 +111,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     maxAge: 24 * 60 * 60,
   },
 
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
 })
