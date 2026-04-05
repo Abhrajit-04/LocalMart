@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
       },
       {
         hostname: "plus.unsplash.com",
+      },
+      {
+        hostname: "res.cloudinary.com",
       }
     ],
   }

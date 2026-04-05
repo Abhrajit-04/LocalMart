@@ -25,7 +25,7 @@ const grocerySchema=new mongoose.Schema<IGrocery>({
                 "Instant & Packaged Food",
                 "Baby & Pet Care"],required:true},
     price:{type:String,required:true},
-    unit:{type:String,required:true},
+    unit:{type:String,required:true,enum:["kg","g","litre","ml","pieces","pack","dozen","bottle","box","can","bag","jar","tube","other"]},
     image:{type:String,required:true}
 },{timestamps:true})
 

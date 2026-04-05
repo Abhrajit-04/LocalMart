@@ -5,8 +5,11 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import Image from 'next/image'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
 
 function HeroSection() {
+    
     const slides=[
         {
             id:1,
