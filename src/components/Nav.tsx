@@ -7,6 +7,8 @@ import Image from 'next/image'
 import { AnimatePresence,motion, spring } from 'motion/react'
 import { signOut } from 'next-auth/react'
 import { createPortal } from 'react-dom'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
 interface IUser {
   _id?: mongoose.Types.ObjectId
   name: string
@@ -21,6 +23,7 @@ function Nav({ user }: { user: IUser }) {
     const profileDropDown=useRef<HTMLDivElement>(null)
     const [searchBarOpen,setSearchBarOpen]=useState(false)
     const [menuOpen,setMenuOpen]=useState(false)
+    const cart=useSelector((state:RootState)=>state.cart)
     useEffect(()=>{
         const handelClickOutside=(e:MouseEvent)=>{
             if(profileDropDown.current && !profileDropDown.current.contains(e.target as Node)){
@@ -119,7 +122,7 @@ transition-all duration-200" onClick={()=>setSearchBarOpen((prev)=>!prev)}>
 
 
   <Link 
-    href="/cart" 
+    href="/user/cart" 
     className="relative flex items-center justify-center text-gray-700 hover:text-green-600 transition-colors duration-200 hover:scale-110"
   >
     <ShoppingBag className="w-6 h-6" />
@@ -129,7 +132,7 @@ transition-all duration-200" onClick={()=>setSearchBarOpen((prev)=>!prev)}>
   flex items-center justify-center 
   rounded-full font-semibold 
   shadow-md border-2 border-white">
-        0 </span>
+        {cart.carData.length} </span>
   </Link></>}
 
         {user.role=="admin" && <>
