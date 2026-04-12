@@ -4,7 +4,13 @@ import { getToken } from 'next-auth/jwt';
 export async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
-    const publicRoutes = ["/login", "/register", "/api/auth", "/unauthorized"];
+    const publicRoutes = [
+  "/login",
+  "/register",
+  "/api/auth",
+  "/unauthorized",
+  "/api/user/stripe/webhook" // ✅ ADD THIS
+];
 
     if (publicRoutes.some(path => pathname.startsWith(path))) {
         return NextResponse.next();
@@ -39,5 +45,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-    matcher: '/((?!api/auth|_next/static|_next/image|favicon.ico).*)',
+   matcher: '/((?!api/auth|api/user/stripe/webhook|_next/static|_next/image|favicon.ico).*)',
 };

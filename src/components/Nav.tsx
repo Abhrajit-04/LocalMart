@@ -175,7 +175,7 @@ onClick={()=>setMenuOpen(prev=>!prev)}>
         </div>
 
         {user.role=="user" &&  <Link
-  href="/orders"
+  href="/user/my-orders"
   className="flex items-center gap-3 px-4 py-2.5 
   rounded-xl text-gray-700 font-medium
   hover:bg-gradient-to-r hover:from-emerald-50 hover:to-green-300

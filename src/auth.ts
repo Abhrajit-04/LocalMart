@@ -15,29 +15,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       async authorize(credentials) {
         await connectDb()
 
-        const email = credentials.email
-        const password = credentials.password
-
-        const user = await User.findOne({ email })
-        if (!user) {
-          throw new Error("Invalid email or password")
-        }
+        const user = await User.findOne({ email: credentials.email })
+        if (!user) throw new Error("Invalid email or password")
 
         const ismatch = await bcrypt.compare(
-          password as string,
+          credentials.password as string,
           user.password as string
         )
 
-        if (!ismatch) {
-          throw new Error("Invalid email or password")
-        }
+        if (!ismatch) throw new Error("Invalid email or password")
 
         return {
-          id: user._id.toString(),
+          id: user._id.toString(), // ✅ Mongo ID
           name: user.name,
           email: user.email,
           role: user.role,
-          image: user.image, // IMPORTANT
+          image: user.image,
         }
       },
     }),
@@ -45,12 +38,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      profile(profile) {
+      profile(profile: any) {
         return {
-          id: profile.sub,
+          id: profile.email, // ✅ temporary
           name: profile.name,
           email: profile.email,
-          image: profile.picture, // VERY IMPORTANT
+          image: profile.picture,
           role: "user",
         }
       },
@@ -61,31 +54,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user }) {
       await connectDb()
 
-      const dbUser = await User.findOne({ email: user.email })
+      let dbUser = await User.findOne({ email: user.email })
 
       if (!dbUser) {
-        await User.create({
+        dbUser = await User.create({
           name: user.name,
           email: user.email,
-          image: user.image, // SAVE GOOGLE IMAGE
+          image: user.image,
           role: "user",
         })
       }
 
+      // ✅ IMPORTANT: force Mongo ID
+      user.id = dbUser._id.toString()
+
+      ;(user as any).role = dbUser.role
+
       return true
     },
 
-    async jwt({ token, user , trigger , session}) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id
         token.name = user.name
         token.email = user.email
-        token.role = user.role
-        token.image = user.image // ADD THIS
+        token.role = (user as any).role
+        token.image = user.image
       }
-    if(trigger=="update"){
-        token.role = session.role
-    }
+
+      if (trigger === "update") {
+        token.role = session?.role
+      }
+
       return token
     },
 
@@ -95,8 +95,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.name = token.name as string
         session.user.email = token.email as string
         session.user.role = token.role as string
-        session.user.image = token.image as string // ADD THIS
+        session.user.image = token.image as string
       }
+
       return session
     },
   },

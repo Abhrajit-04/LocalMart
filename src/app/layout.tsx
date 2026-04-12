@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" >
-      <body className="w-full min-h-[180vh] bg-gradient-to-b from-emerald-100 via-green-200 to-amber-100">
+      <body className="w-full min-h-screen bg-gradient-to-b from-emerald-100 via-green-200 to-amber-100">
         <Provider>
           <StoreProvider>
           <InitUser/>
