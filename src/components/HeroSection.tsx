@@ -8,8 +8,9 @@ import Image from 'next/image'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 
+
 function HeroSection() {
-    
+  
     const slides=[
         {
             id:1,

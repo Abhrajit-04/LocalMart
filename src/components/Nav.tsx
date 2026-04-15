@@ -139,7 +139,7 @@ transition-all duration-200" onClick={()=>setSearchBarOpen((prev)=>!prev)}>
             <div className='hidden md:flex items-center gap-4'>
                 <Link href={"/admin/add-product"} className='flex items-center gap-2 bg-gray-300 text-black font-semibold px-4 py-2 rounded-full hover:bg-green-200 hover:scale-105 transition-all'><PlusCircle className='w-5 h-5'/> Add Product</Link>
                 <Link href={""} className='flex items-center gap-2 bg-gray-300 text-black font-semibold px-4 py-2 rounded-full hover:bg-green-200 hover:scale-105 transition-all'><Boxes className='w-5 h-5'/> View Product</Link>
-                <Link href={""} className='flex items-center gap-2 bg-gray-300 text-black font-semibold px-4 py-2 rounded-full hover:bg-green-200 hover:scale-105 transition-all'><ClipboardCheck className='w-5 h-5'/> Manage Orders</Link>
+                <Link href={"/admin/manage-orders"} className='flex items-center gap-2 bg-gray-300 text-black font-semibold px-4 py-2 rounded-full hover:bg-green-200 hover:scale-105 transition-all'><ClipboardCheck className='w-5 h-5'/> Manage Orders</Link>
             </div>
             <div className="md:hidden w-10 h-10 flex items-center justify-center
 rounded-full

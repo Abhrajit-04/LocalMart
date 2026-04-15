@@ -9,7 +9,10 @@ export async function proxy(req: NextRequest) {
   "/register",
   "/api/auth",
   "/unauthorized",
-  "/api/user/stripe/webhook" // ✅ ADD THIS
+  "/api/user/stripe/webhook",
+  "/api/socket/connect",
+  "/api/socket/disconnect",
+  "/api/socket/update-location"
 ];
 
     if (publicRoutes.some(path => pathname.startsWith(path))) {

@@ -4,6 +4,7 @@ import "./globals.css";
 import Provider from "@/provider";
 import StoreProvider from "@/redux/StoreProvider";
 import InitUser from "@/initUser";
+import SocketProvider from "./SocketProvider";
 
 export const metadata: Metadata = {
   title: "LoKart | The Neighborhood Marketplace",
@@ -20,7 +21,9 @@ export default function RootLayout({
       <body className="w-full min-h-screen bg-gradient-to-b from-emerald-100 via-green-200 to-amber-100">
         <Provider>
           <StoreProvider>
+           
           <InitUser/>
+           <SocketProvider />
             {children}
           </StoreProvider>
 
