@@ -1,10 +1,45 @@
 'use client'
 import AdminOrderCard from '@/components/AdminOrderCard'
-import { IOrder } from '@/models/order.model'
+import { getSocket } from '@/lib/socket'
+import { IUser } from '@/models/user.model'
 import axios from 'axios'
 import { ArrowLeft } from 'lucide-react'
+import mongoose from 'mongoose'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+interface IOrder{
+    _id?:mongoose.Types.ObjectId
+    user:mongoose.Types.ObjectId
+    items:[
+        {
+            grocery:mongoose.Types.ObjectId,
+            name:string,
+            price:string,
+            unit:string,
+            image:string,
+            quantity:number
+        }
+    ]
+    ,
+    isPaid:boolean,
+    totalAmount:number,
+    paymentMethod:"cod" | "online"
+    address:{
+        fullName:string,
+        mobile:string,
+        city:string,
+        state:string,
+        pincode:string,
+        fullAddress:string,
+        latitude:number,
+        longitude:number
+    }
+    assignment?:mongoose.Types.ObjectId
+    assignedDeliveryBoy?: IUser
+    status:"pending" | "out of delivery" | "delivered"
+    createdAt?:Date
+    updatedAt?:Date
+}
 
 function ManageOrder() {
     const [orders,setOrders]=useState<IOrder[]>([])
@@ -20,6 +55,30 @@ function ManageOrder() {
         }
         getOrders()
     },[])
+
+    useEffect(():any=>{
+      const socket=getSocket()
+      socket.on("new-order",(newOrder)=>{
+        setOrders((prev)=>[newOrder,...prev!])
+      })
+      return ()=>socket.off("new-order")
+    },[])
+
+    useEffect(():any=>{
+  const socket=getSocket()
+
+  socket.on("order-status-update",(data)=>{
+    setOrders((prev)=>
+      prev.map((o)=>
+        o._id?.toString() === data.orderId
+          ? { ...o, status: data.status }
+          : o
+      )
+    )
+  })
+
+  return ()=>socket.off("order-status-update")
+},[])
   return (
     <div className='min-h-screen bg-gray-50 w-full'>
         <div className='fixed top-0 left-0 w-full backdrop-blur-lg bg-white/70 shadow-sm border-b z-50'>
@@ -36,7 +95,7 @@ function ManageOrder() {
                 <div className='max-w-4xl mx-auto px-4 pt-24 pb-16 space-y-8'>
                     <div className='space-y-6'>
   {orders?.map((order,index)=>(
-    <AdminOrderCard key={order._id?.toString()} order={order}/>
+    <AdminOrderCard key={index} order={order}/>
   ))}
 </div>
                 </div>

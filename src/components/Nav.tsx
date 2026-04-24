@@ -59,7 +59,7 @@ function Nav({ user }: { user: IUser }) {
                         <div className='flex flex-col gap-3 font-medium mt-6'>
                             <Link href={"/admin/add-product"} className='flex items-center gap-3 p-3 rounded-lg bg-white/10 hover:bg-white/20 hover:pl-4 transition-all'><PlusCircle className='w-5 h-5'/> Add Product</Link>
                             <Link href={""} className='flex items-center gap-3 p-3 rounded-lg bg-white/10 hover:bg-white/20 hover:pl-4 transition-all'><Boxes className='w-5 h-5'/> View Product</Link>
-                            <Link href={""} className='flex items-center gap-3 p-3 rounded-lg bg-white/10 hover:bg-white/20 hover:pl-4 transition-all'><ClipboardCheck className='w-5 h-5'/> Manage Orders</Link>
+                            <Link href={"/admin/manage-orders"} className='flex items-center gap-3 p-3 rounded-lg bg-white/10 hover:bg-white/20 hover:pl-4 transition-all'><ClipboardCheck className='w-5 h-5'/> Manage Orders</Link>
                         </div>
                         <div className='my-5 border-t border-white/20'></div>
                         <div className='flex items-center gap-3 text-red-300 font-semibold mt-auto hover:bg-red-500/20 p-3 rounded-lg transition-all' onClick={async()=>await signOut({callbackUrl:"/"})}>
