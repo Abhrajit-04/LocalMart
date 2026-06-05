@@ -50,7 +50,7 @@ function Nav({ user }: { user: IUser }) {
                             ><X/></button>
                         </div>
                         <div className='flex items-center gap-3 p-3 mt-3 rounded-xl bg-white/10 hover:bg-white/15 transition-all shadow-inner'>
-                            <div className='relative w-12 h-12 rounded-full overflow-hidden border-2 border-green-400/60 shadow-lg'>{user.image?<Image src={user.image} alt='user' fill className='object-cover rounded-full'/>:<User/>}</div>
+                            <div className='relative w-12 h-12 rounded-full overflow-hidden border-2 border-green-400/60 shadow-lg'>{user.image?<Image src={user.image} alt='user' fill sizes="48px" className='object-cover rounded-full'/>:<User/>}</div>
                             <div>
                                 <h2 className='text-lg font-semibold text-white'>{user.name}</h2>
                                 <p className='text-xs text-green-200 capitialize tracking-wide'>{user.role}</p>
@@ -152,7 +152,7 @@ onClick={()=>setMenuOpen(prev=>!prev)}>
         </>}
     
   <div className='relative' ref={profileDropDown}>
-  <div className='bg-gray-200 rounded-full w-11 h-11 overflow-hidden flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-200 hover:scale-105' onClick={()=>setopen(prev=>!prev)}>
+  <div className='relative bg-gray-200 rounded-full w-11 h-11 overflow-hidden flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-200 hover:scale-105' onClick={()=>setopen(prev=>!prev)}>
     {user.image?<Image src={user.image} alt='user' fill className='object-cover rounded-full'/>:<User/>}
   </div>
   <AnimatePresence>
@@ -166,7 +166,7 @@ onClick={()=>setMenuOpen(prev=>!prev)}>
     >
         <div className='flex items-center gap-3 px-3 py-2 border-b border-gray-100'>
            <div className='w-10 h-10 relative rounded-full bg-green-100 flex items-center justify-center overflow-hidden'>
-           {user.image?<Image src={user.image} alt='user' fill className='object-cover rounded-full'/>:<User/>} 
+           {user.image?<Image src={user.image} alt='user' fill sizes="40px" className='object-cover rounded-full'/>:<User/>} 
             </div> 
             <div>
                 <div className='text-gray-800 font-semibold'>{user.name}</div>

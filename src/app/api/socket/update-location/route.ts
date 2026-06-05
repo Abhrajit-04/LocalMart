@@ -13,7 +13,14 @@ export async function POST(req:NextRequest){
             )
         }
 
-        const user=await User.findByIdAndUpdate(userId,{location},{ new: true })
+       const user = await User.findByIdAndUpdate(
+  userId,
+  { location },
+  {
+    returnDocument: "after",
+    runValidators: true
+  }
+)
         if(!user){
             return NextResponse.json(
                 {message:"user not find"},

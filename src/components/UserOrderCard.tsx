@@ -13,6 +13,7 @@ import {
 import mongoose from "mongoose";
 import { motion } from "motion/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 interface IOrder {
@@ -50,6 +51,7 @@ interface IOrder {
 function UserOrderCard({ order }: { order: IOrder }) {
   const [expanded, setExpanded] = useState(false);
   const [status, setStatus] = useState(order.status);
+  const router=useRouter();
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
@@ -156,6 +158,7 @@ function UserOrderCard({ order }: { order: IOrder }) {
   hover:-translate-y-0.5 hover:scale-[1.01]
   active:scale-95
   transition-all duration-300 ease-out"
+  onClick={()=>router.push(`/user/track-order/${order._id?.toString()}`)}
             >
               <span className="absolute inset-0 bg-white/10 blur-xl"></span>
 

@@ -60,12 +60,13 @@ function HeroSection() {
                 className='absolute inset-0'
             >
                 <Image
-                    src={slides[currentSlide]?.bg}
-                    fill
-                    alt='slide'
-                    priority 
-                    className='object-center'
-                />
+    src={slides[currentSlide]?.bg}
+    fill
+    alt="slide"
+    priority
+    sizes="100vw"
+    className="object-cover object-center"
+/>
 
                 <div className='absolute inset-0 bg-black/50 backdrop-blur-[1px]' />
             </motion.div>

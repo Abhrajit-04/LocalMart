@@ -554,7 +554,7 @@ const handleCurrentLocation=()=>{
                 <div className="relative mt-6 h-[330px] rounded-xl overflow-hidden border border-gray-200 shadow-inner">
                   {position &&  <MapContainer
                   key={position.toString()}
-      center={position}
+      center={position as LatLngExpression}
       zoom={13}
       scrollWheelZoom={true}
       className='w-full h-full rounded-xl'

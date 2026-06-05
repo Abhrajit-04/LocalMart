@@ -3,17 +3,37 @@ import connectDb from "@/lib/db";
 import User from "@/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(request:NextRequest) {
-    try {
-        await connectDb()
-        const {role,mobile}=await request.json()
-        const session=await auth()
-        const user=await User.findOneAndUpdate({email:session?.user?.email},{role,mobile},{new:true})
-        if(!user){
-            return NextResponse.json({message:"User not found"},{status:400})
-        }
-        return NextResponse.json({message:"User updated successfully"},{status:200})
-    } catch (error) {
-        return NextResponse.json({message:`Internal server error ${error}`},{status:500})
+export async function POST(request: NextRequest) {
+  try {
+    await connectDb();
+
+    const { role, mobile } = await request.json();
+    const session = await auth();
+
+    const user = await User.findOneAndUpdate(
+      { email: session?.user?.email },
+      { role, mobile },
+      {
+        returnDocument: "after",
+        runValidators: true,
+      }
+    );
+
+    if (!user) {
+      return NextResponse.json(
+        { message: "User not found" },
+        { status: 400 }
+      );
     }
+
+    return NextResponse.json(
+      { message: "User updated successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { message: `Internal server error ${error}` },
+      { status: 500 }
+    );
+  }
 }

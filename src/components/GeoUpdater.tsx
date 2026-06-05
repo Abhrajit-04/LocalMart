@@ -1,27 +1,47 @@
 'use client'
+
 import { getSocket } from '@/lib/socket'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 
-function GeoUpdater({userId}:{userId:string}) {
-    
-    useEffect(()=>{
-        if(!userId)return
-        if(!navigator.geolocation)return
-        const socket = getSocket()
-           const watcher= navigator.geolocation.watchPosition((pos)=>{
-                const lat=pos.coords.latitude
-                const lon=pos.coords.longitude
-                socket.emit("update-location",{
-                    userId,
-                    latitude:lat,
-                    longitude:lon
-                })
-            },(err)=>{
-                console.log(err)
-            },{enableHighAccuracy:true})
-        return ()=>navigator.geolocation.clearWatch(watcher)
+function GeoUpdater({ userId }: { userId: string }) {
+  const lastSentRef = useRef(0)
 
-    },[userId])
+  useEffect(() => {
+    if (!userId) return
+    if (!navigator.geolocation) return
+
+    const socket = getSocket()
+
+    const watcher = navigator.geolocation.watchPosition(
+      (pos) => {
+        const now = Date.now()
+
+        
+        if (now - lastSentRef.current < 5000) return
+
+        lastSentRef.current = now
+
+        socket.emit('update-location', {
+          userId,
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        })
+      },
+      (err) => {
+        console.log('Geolocation Error:', err)
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 5000,
+      }
+    )
+
+    return () => {
+      navigator.geolocation.clearWatch(watcher)
+    }
+  }, [userId])
+
   return null
 }
 
