@@ -73,12 +73,18 @@ function Nav({ user }: { user: IUser }) {
 
 
   return (
-    <div className="w-[95%] fixed top-4 left-1/2 -translate-x-1/2 
-    bg-white/90 backdrop-blur-md 
-    border border-gray-200 
-    rounded-2xl shadow-lg 
-    flex justify-between items-center 
-    h-16 px-6 md:px-10 z-50">
+    <div className="
+w-[95%]
+fixed top-4 left-1/2 -translate-x-1/2
+bg-white/90
+backdrop-blur-md
+border border-gray-200
+rounded-2xl
+shadow-lg
+flex justify-between items-center
+h-16 px-6 md:px-10
+z-[9999]
+">
 
      <Link href="/" className="flex items-center gap-2 group">
   <ShoppingCart className="w-7 h-7 text-green-600 group-hover:scale-110 transition" />

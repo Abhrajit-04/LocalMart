@@ -5,6 +5,7 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import LiveMap from './LiveMap'
+import DeliveryChat from './DeliveryChat'
 
 interface ILocation{
     latitude:number,
@@ -54,13 +55,31 @@ function DeliveryBoyDashboard() {
             },{enableHighAccuracy:true})
         return ()=>navigator.geolocation.clearWatch(watcher)
     },[userData?._id])
-    useEffect(():any=>{
-        const socket=getSocket()
-        socket.on("new-assignment",(deliveryAssignment)=>{
-            setAssignments((prev)=>[...prev,deliveryAssignment])
+   useEffect(() => {
+    const socket = getSocket()
+
+    const handleNewAssignment = (deliveryAssignment:any) => {
+
+        setAssignments((prev) => {
+
+            const exists = prev.some(
+                item => item._id === deliveryAssignment._id
+            )
+
+            if (exists) {
+                return prev
+            }
+
+            return [...prev, deliveryAssignment]
         })
-        return ()=>socket.off("new-assignment")
-    },[])
+    }
+
+    socket.on("new-assignment", handleNewAssignment)
+
+    return () => {
+        socket.off("new-assignment", handleNewAssignment)
+    }
+}, [])
 
     const handleAccept=async (id:string)=>{
         try {
@@ -88,6 +107,8 @@ function DeliveryBoyDashboard() {
         }
     }
 
+   
+
     useEffect(()=>{
         fetchcurrentOrder()
         fetchAssignments()
@@ -103,6 +124,8 @@ function DeliveryBoyDashboard() {
                     <div className='rounded-xl border shadow-lg overflow-hidden mb-6'>
                         <LiveMap userLocation={userLocation} deliveryBoyLocation={deliveryBoyLocation}/>
                     </div>
+                    
+                    <DeliveryChat orderId={activeOrder.order._id} deliveryBoyId={userData?._id!}/>
                 </div>
             </div>
         )
@@ -113,7 +136,7 @@ function DeliveryBoyDashboard() {
         <div className='max-w-3xl mx-auto'>
             <h2 className='text-2xl font-bold mt-[120px] mb-[30px]'>Delivery Assignment</h2>
             {assignments.map(a=>(
-                <div key={a._id} className='p-5 bg-white rounded-xl shadow mb-4 border'>
+                <div key={a._id?.toString()} className='p-5 bg-white rounded-xl shadow mb-4 border'>
                     <p><b>Order Id </b> #{a?.order._id.slice(-6)}</p>
                     <p className='text-gray-600'>{a.order.address.fullAddress}</p>
 

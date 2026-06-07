@@ -4,7 +4,7 @@ import { getToken } from 'next-auth/jwt';
 export async function proxy(req: NextRequest) {
     const { pathname } = req.nextUrl;
 
-    const publicRoutes = [
+  const publicRoutes = [
   "/login",
   "/register",
   "/api/auth",
@@ -12,7 +12,10 @@ export async function proxy(req: NextRequest) {
   "/api/user/stripe/webhook",
   "/api/socket/connect",
   "/api/socket/disconnect",
-  "/api/socket/update-location"
+  "/api/socket/update-location",
+
+  "/api/chat/save",
+  "/api/chat/message"
 ];
 
     if (publicRoutes.some(path => pathname.startsWith(path))) {

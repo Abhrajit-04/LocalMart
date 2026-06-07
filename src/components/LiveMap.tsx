@@ -115,6 +115,7 @@ function LiveMap({ userLocation, deliveryBoyLocation }: Iprops) {
   return (
    <div className="w-full h-[500px] rounded-[24px] overflow-hidden relative">
       <MapContainer
+      style={{ zIndex: 1 }}
         center={center}
         zoom={13}
         scrollWheelZoom={true}
