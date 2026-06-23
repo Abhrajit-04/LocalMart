@@ -10,6 +10,9 @@ export async function POST(request: NextRequest) {
     const { role, mobile } = await request.json();
     const session = await auth();
 
+    console.log("ROLE:", role)
+console.log("MOBILE:", mobile)
+
     const user = await User.findOneAndUpdate(
       { email: session?.user?.email },
       { role, mobile },
@@ -30,10 +33,12 @@ export async function POST(request: NextRequest) {
       { message: "User updated successfully" },
       { status: 200 }
     );
-  } catch (error) {
-    return NextResponse.json(
-      { message: `Internal server error ${error}` },
-      { status: 500 }
-    );
-  }
+  } catch(error){
+  console.error("EDIT ROLE ERROR:", error)
+
+  return NextResponse.json(
+    {message:`Internal server error ${error}`},
+    {status:500}
+  )
+}
 }

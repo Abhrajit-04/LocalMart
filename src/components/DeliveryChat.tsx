@@ -16,6 +16,7 @@ function DeliveryChat({ orderId, deliveryBoyId }: Props) {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<IMessage[]>([]);
     const chatBoxRef =useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     const [suggestions,setSuggestions]=useState<string[]>([])
     const [loading,setLoading]=useState(false)
   
@@ -33,7 +34,18 @@ function DeliveryChat({ orderId, deliveryBoyId }: Props) {
         return;
       }
 
-      setMessages((prev) => [...prev, message]);
+      setMessages((prev) => {
+  const exists = prev.some(
+    (m) =>
+      m.senderId?.toString() === message.senderId?.toString() &&
+      m.time === message.time &&
+      m.text === message.text
+  )
+
+  if (exists) return prev
+
+  return [...prev, message]
+})
     };
 
     socket.on("send-message", handleMessage);
@@ -59,9 +71,10 @@ function DeliveryChat({ orderId, deliveryBoyId }: Props) {
       }),
     };
 
-    socket.emit("send-message", message);
+    socket.emit("send-message", message)
 
-    setNewMessage("");
+    setNewMessage("")
+    setSuggestions([])
   };
 
   useEffect(()=>{
@@ -89,18 +102,49 @@ function DeliveryChat({ orderId, deliveryBoyId }: Props) {
     getAllMessages();
   }, [orderId]);
 
-  const getSuggestion= async ()=>{
-    setLoading(true)
-    try {
-        const lastMessage=messages?.filter(m=>m.senderId!==deliveryBoyId)?.at(-1)
-        const result=await axios.post("/api/chat/ai-suggestions",{message:lastMessage?.text,role:"delivery_boy"})
-        setSuggestions([...new Set<string>(result.data as string[])])
-        setLoading(false)
-    } catch (error) {
-        console.log(error)
-        setLoading(false)
-    }
+  const getSuggestion = async () => {
+
+    if (suggestions.length > 0) {
+  return
+}
+  setLoading(true)
+
+  try {
+    const lastMessage = messages
+      ?.filter(
+        m =>
+          m.senderId?.toString() !==
+          deliveryBoyId?.toString()
+      )
+      ?.at(-1)
+
+   if (!lastMessage?.text) {
+  setSuggestions([])
+  setLoading(false)
+  return
+}
+
+    const result = await axios.post<string[]>(
+      "/api/chat/ai-suggestions",
+      {
+        message: lastMessage.text,
+        role: "delivery_boy"
+      },
+      {
+        timeout: 10000
+      }
+    )
+
+    setSuggestions(
+      [...new Set(result.data || [])]
+    )
+  } catch (error) {
+    console.log(error)
+    setSuggestions([])
+  } finally {
+    setLoading(false)
   }
+}
 
   return (
     <div className="bg-white rounded-3xl shadow-lg border p-4 h-[500px] flex flex-col">
@@ -127,30 +171,43 @@ function DeliveryChat({ orderId, deliveryBoyId }: Props) {
 
         <div className="flex gap-2 flex-wrap mb-3">
             {suggestions.map((s,i)=>(
-                <motion.div
+                <motion.button
+                type="button"
                 className="px-3 py-1 text-xs bg-green-50 border border-green-200 cursor-pointer text-green-700 rounded-full"
-                onClick={()=>setNewMessage(s)}
+                onClick={() => {
+  setNewMessage(s)
+  inputRef.current?.focus()
+}}
                 whileTap={{scale:0.92}}
                 key={s}>
                     {s}
-                </motion.div>
+                </motion.button>
             ))}
+            {!loading && suggestions.length === 0 && (
+  <p className="text-xs text-gray-400">
+    No suggestions available
+  </p>
+)}
         </div>
       
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 bg-gradient-to-b from-gray-50 to-white" ref={chatBoxRef}>
         <AnimatePresence>
           {messages?.map((message, index) => (
             <motion.div
-              key={message._id?.toString() || index}
+              key={
+  message?._id?.toString() ||
+  `${message?.senderId?.toString() || "unknown"}-${message?.time || index}`
+}
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               className={`flex ${
-                message.senderId.toString() === deliveryBoyId.toString()
-                  ? "justify-end"
-                  : "justify-start"
-              }`}
+  message?.senderId?.toString() ===
+  deliveryBoyId?.toString()
+    ? "justify-end"
+    : "justify-start"
+}`}
             >
               <div
                 className={`
@@ -159,16 +216,17 @@ max-w-[75%]
 rounded-3xl
 shadow-md
 ${
-  message.senderId.toString() === deliveryBoyId.toString()
+  message?.senderId?.toString() ===
+  deliveryBoyId?.toString()
     ? "bg-gradient-to-r from-green-500 to-green-600 text-white rounded-br-md"
     : "bg-blue-200 border border-gray-200 text-gray-800 rounded-bl-md"
 }
 `}
               >
-                <p>{message.text}</p>
+                <p>{message?.text || ""}</p>
 
                 <p className="text-[10px] opacity-70 mt-1 text-right">
-                  {message.time}
+                  {message?.time || ""}
                 </p>
               </div>
             </motion.div>
@@ -180,15 +238,17 @@ ${
       <div className="flex gap-2 mt-3 border-t pt-3">
         <input
           type="text"
+           ref={inputRef}
           placeholder="Type a Message..."
           className="flex-1 bg-gray-100 px-4 py-2 rounded-xl outline-none focus:ring-2 focus:ring-green-500"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              sendMessage();
-            }
-          }}
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault()
+    sendMessage()
+  }
+}}
         />
 
         <button

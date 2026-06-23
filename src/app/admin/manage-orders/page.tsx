@@ -56,14 +56,38 @@ function ManageOrder() {
         getOrders()
     },[])
 
-    useEffect(():any=>{
-      const socket=getSocket()
-      socket.on("new-order",(newOrder)=>{
-        setOrders((prev)=>[newOrder,...prev!])
-      })
-      return ()=>socket.off("new-order")
-    },[])
+   useEffect(() => {
+  const socket = getSocket()
 
+  const handleNewOrder = (newOrder: IOrder) => {
+    console.log("NEW ORDER RECEIVED:", newOrder)
+
+    setOrders((prev) => [newOrder, ...prev])
+  }
+
+  const handleOrderAssigned = ({
+    orderId,
+    assignedDeliveryBoy,
+  }: any) => {
+    console.log("ORDER ASSIGNED EVENT:", orderId)
+
+    setOrders((prev) =>
+      prev.map((o) =>
+        o._id?.toString() === orderId?.toString()
+          ? { ...o, assignedDeliveryBoy }
+          : o
+      )
+    )
+  }
+
+  socket.on("new-order", handleNewOrder)
+  socket.on("order-assigned", handleOrderAssigned)
+
+  return () => {
+    socket.off("new-order", handleNewOrder)
+    socket.off("order-assigned", handleOrderAssigned)
+  }
+}, [])
     useEffect(():any=>{
   const socket=getSocket()
 
@@ -95,7 +119,7 @@ function ManageOrder() {
                 <div className='max-w-4xl mx-auto px-4 pt-24 pb-16 space-y-8'>
                     <div className='space-y-6'>
   {orders?.map((order,index)=>(
-    <AdminOrderCard key={index} order={order}/>
+    <AdminOrderCard key={order._id?.toString()} order={order}/>
   ))}
 </div>
                 </div>

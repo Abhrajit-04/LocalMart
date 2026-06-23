@@ -13,7 +13,9 @@ export async function POST(req:NextRequest){
             return NextResponse.json({message:`room not found`},{status:400})
         }
 
-        const messages=await Message.find({roomId:room._id})
+        const messages = await Message.find({
+  roomId: room._id
+}).sort({ createdAt: 1 })
 
         return NextResponse.json(messages,{status:200})
     } catch(error){

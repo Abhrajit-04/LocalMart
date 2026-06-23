@@ -53,6 +53,14 @@ const cartSlice=createSlice({
             state.carData = state.carData.filter(i=>i._id!==action.payload)
             cartSlice.caseReducers.calculateTotal(state)
         },
+
+        clearCart:(state)=>{
+    state.carData=[]
+    state.subTotal=0
+    state.deliveryFee=40
+    state.finalTotal=40
+},
+
         calculateTotal:(state)=>{
             state.subTotal=state.carData.reduce((sum,item)=>sum +Number(item.price)*item.quantity,0)
             state.deliveryFee=state.subTotal>100?0:40
@@ -61,5 +69,5 @@ const cartSlice=createSlice({
     }
 })
 
-export const {addToCart,increaseQuantity,decreaseQuantity,removefromCart}=cartSlice.actions
+export const {addToCart,increaseQuantity,decreaseQuantity,removefromCart,clearCart}=cartSlice.actions
 export default cartSlice.reducer

@@ -1,9 +1,21 @@
-'use client'
+"use client"
+
+import { useEffect } from "react"
+import { useDispatch } from "react-redux"
+import { AppDispatch } from "@/redux/store"
+import { clearCart } from "@/redux/cartSlice"
 import React from 'react'
 import {motion} from "motion/react"
 import { ArrowRight, CheckCircle, PackageCheck } from 'lucide-react'
 import Link from 'next/link'
 function OrderSuccess() {
+
+    const dispatch = useDispatch<AppDispatch>()
+
+useEffect(() => {
+    dispatch(clearCart())
+}, [])
+
   return (
     <div className='flex flex-col items-center justify-center min-h-screen px-6 text-center bg-linear-to-b from-green-50 to-white'>
         <motion.div

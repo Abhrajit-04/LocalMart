@@ -11,24 +11,26 @@ function EditRoleMobile() {
   const [roles, setRoles] = useState([
     { id: "admin", label: "Admin", icon: UserCog },
     { id: "user", label: "User", icon: User },
-    { id: "deliveryBoy", label: "DeliveryBoy", icon: Bike }
+    { id: "deliveryboy", label: "DeliveryBoy", icon: Bike }
   ])
   const [selectedRole, setSelectedRole] = useState("")
   const [mobile, setMobile] = useState("")
   const {update}=useSession()
   const router=useRouter()
-  const handleEdit=async ()=>{
-    try {
-        const result=await axios.post("/api/user/edit-role-mobile", {
-            role:selectedRole,
-            mobile
-        })
-        await update({role:selectedRole})
-       router.push("/")
-    } catch (error) {
-        console.log(error)
-    }
+  const handleEdit = async () => {
+  try {
+    await axios.post("/api/user/edit-role-mobile", {
+      role: selectedRole,
+      mobile
+    })
+
+    await update({ role: selectedRole })
+
+    window.location.href = "/"
+  } catch (error) {
+    console.log(error)
   }
+}
 
   
   useEffect(()=>{

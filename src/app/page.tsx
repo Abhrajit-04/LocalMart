@@ -21,6 +21,8 @@ async function Home() {
 
   const user = await User.findOne({ email: session.user.email })
 
+  
+
   if (!user) {
     redirect("/login")
   }

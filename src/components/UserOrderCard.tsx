@@ -94,6 +94,8 @@ function UserOrderCard({ order }: { order: IOrder }) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+
+          {status!=="delivered" && 
           <span
             className={`px-3 py-1 text-xs font-semibold rounded-full border ${
               order.isPaid
@@ -103,6 +105,8 @@ function UserOrderCard({ order }: { order: IOrder }) {
           >
             {order.isPaid ? "paid" : "unpaid"}
           </span>
+          }
+          
           <span
             className={`px-3 py-1 text-xs font-semibold border rounded-full ${getStatusColor(
               status,
@@ -113,7 +117,8 @@ function UserOrderCard({ order }: { order: IOrder }) {
         </div>
       </div>
 
-      <div className="p-5 space-y-4">
+            {status!="delivered" && 
+            <div className="p-5 space-y-4">
         {order.paymentMethod == "cod" ? (
           <div className="flex items-center gap-2 text-gray-700 text-sm">
             <Truck size={16} className="text-green-600" />
@@ -249,6 +254,9 @@ function UserOrderCard({ order }: { order: IOrder }) {
           </div>
         </div>
       </div>
+            }
+
+      
     </motion.div>
   );
 }

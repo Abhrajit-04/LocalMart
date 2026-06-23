@@ -33,7 +33,7 @@ export async function POST(
       const { latitude, longitude } = order.address;
 
       const nearByDeliveryBoys = await User.find({
-        role: "deliveryBoy",
+        role: "deliveryboy",
         location: {
           $near: {
             $geometry: {

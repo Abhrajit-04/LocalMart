@@ -18,6 +18,9 @@ import {
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
+import { clearCart } from "@/redux/cartSlice";
 import dynamic from "next/dynamic";
 import { LatLngExpression } from "leaflet";
 import { useMap } from "react-leaflet";
@@ -39,9 +42,17 @@ const Marker = dynamic(
 );
 
 function Checkout() {
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const { userData } = useSelector((state: RootState) => state.user);
   const { subTotal,deliveryFee,finalTotal,carData } = useSelector((state: RootState) => state.cart);
+
+  useEffect(() => {
+  if (carData.length === 0) {
+    router.replace("/user/cart")
+  }
+}, [carData, router])
+
   const [address, setAddress] = useState({
     fullName: "",
     mobile: "",
@@ -168,6 +179,12 @@ fetchAddress()
 },[position])
 
 const handleCod=async ()=>{
+
+if(carData.length===0){
+    router.push("/user/cart")
+    return
+  }
+
   if(!position){
     return null
   }
@@ -198,6 +215,8 @@ const handleCod=async ()=>{
       },
     
     })
+
+    dispatch(clearCart())
 
     router.push("/user/order-success")
   } catch (error) {
@@ -553,7 +572,7 @@ const handleCurrentLocation=()=>{
 </div>
                 <div className="relative mt-6 h-[330px] rounded-xl overflow-hidden border border-gray-200 shadow-inner">
                   {position &&  <MapContainer
-                  key={position.toString()}
+                  key={`${position?.[0]}-${position?.[1]}`}
       center={position as LatLngExpression}
       zoom={13}
       scrollWheelZoom={true}
@@ -634,7 +653,15 @@ const handleCurrentLocation=()=>{
           <span className="font-semibold text-green-600">₹{finalTotal}</span>
         </div>
       </div>
-      <motion.button whileTap={{scale:0.9}} className="w-full mt-6 bg-green-600 text-white py-3 rounded-full hover:bg-green-700 transition-all font-semibold"
+      <motion.button
+whileTap={{scale: carData.length===0 ? 1 : 0.9}}
+disabled={carData.length===0}
+className={`w-full mt-6 py-3 rounded-full font-semibold transition-all
+${
+carData.length===0
+? "bg-gray-300 text-gray-500 cursor-not-allowed"
+: "bg-green-600 text-white hover:bg-green-700"
+}`}
       onClick={()=>{
         if(paymentMethod=="cod"){
           handleCod()
@@ -642,7 +669,13 @@ const handleCurrentLocation=()=>{
           handleOnlinePayment()
         }
       }}>
-        {paymentMethod=="cod"?"Place Order":"pay & Place Order"}
+        {
+carData.length===0
+? "Cart Empty"
+: paymentMethod==="cod"
+? "Place Order"
+: "Pay & Place Order"
+}
       </motion.button>
         </motion.div>
       </div>

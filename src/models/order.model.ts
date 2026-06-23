@@ -33,6 +33,9 @@ export interface IOrder{
     status:"pending" | "out of delivery" | "delivered"
     createdAt?:Date
     updatedAt?:Date
+    deliveryOtp:string | null
+    deliveryOtpVerification:Boolean
+    deliveredAt:Date
 }
 
 const orderSchema=new mongoose.Schema<IOrder>({
@@ -89,6 +92,17 @@ const orderSchema=new mongoose.Schema<IOrder>({
         enum:["pending","out of delivery","delivered"],
         default:"pending"
     },
+    deliveryOtp:{
+        type:String,
+        default:null
+    },
+    deliveryOtpVerification:{
+        type:Boolean,
+        default:false
+    },
+    deliveredAt:{
+        type:Date
+    }
 },{timestamps:true})
 
 
