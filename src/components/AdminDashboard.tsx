@@ -28,6 +28,33 @@ async function AdminDashboard() {
 
   const sevenDaysOrders=orders.filter((o)=>new Date(o.createdAt)>=sevenDaysAgo)
   const sevenDaysRevenue=sevenDaysOrders.reduce((sum,o)=>sum+(o.totalAmount || 0),0)
+
+  const stats=[
+    {title:"Total Orders",value:totalOrders},
+    {title:"Total Customers",value:totalCustomers},
+    {title:"Pending Deliveries",value:pendingDeliveries},
+    {title:"Total Revenue",value:totalRevenue}
+  ];
+  
+  const chartData=[]
+
+  for (let i = 6; i >=0; i--){
+
+    const date=new Date()
+    date.setDate(date.getDate()-i)
+    date.setHours(0,0,0,0)
+
+    const nextDay=new Date(date)
+    nextDay.setDate(nextDay.getDate()+1)
+
+    const ordersCount=orders.filter((o)=>new Date(o.createdAt)>=date && new Date(o.createdAt)<nextDay).length
+
+    chartData.push({
+      day:date.toLocaleDateString("en-US",{weekday:"short"}),
+      orders:ordersCount
+    })
+  }
+
   return (
     <>
        <AdminDashboardClient 
@@ -35,7 +62,10 @@ async function AdminDashboard() {
         {today:todayRevenue,
           sevenDays:sevenDaysRevenue,
           total:totalRevenue}
-       }/> 
+       }
+       stats={stats}
+       chartData={chartData}
+       /> 
     </>
   )
 }

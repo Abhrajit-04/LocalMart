@@ -76,6 +76,7 @@ function Checkout() {
   }, [userData]);
   const [position,setPosition]=useState<[number,number]|null>(null)
   const [paymentMethod,setPaymentMethod]=useState<"cod" | "online">("cod")
+  const [placingOrder, setPlacingOrder] = useState(false)
 
  useEffect(() => {
   if (!navigator.geolocation) {
@@ -178,17 +179,37 @@ const fetchAddress=async ()=>{
 fetchAddress()
 },[position])
 
-const handleCod=async ()=>{
+const handleCod = async () => {
 
-if(carData.length===0){
+  if (placingOrder) return
+
+  setPlacingOrder(true)
+
+  if(carData.length===0){
     router.push("/user/cart")
+    setPlacingOrder(false)
     return
   }
 
   if(!position){
-    return null
+    setPlacingOrder(false)
+    return
   }
   try {
+
+    if (
+  !address.fullName ||
+  !address.mobile ||
+  !address.city ||
+  !address.state ||
+  !address.pincode ||
+  !address.fullAddress
+){
+  alert("Please complete delivery address")
+  setPlacingOrder(false)
+  return
+}
+
     const result=await axios.post("/api/user/order",{
       userId:userData?._id,
       items:carData.map(item=>(
@@ -216,18 +237,42 @@ if(carData.length===0){
     
     })
 
-    dispatch(clearCart())
+    
 
     router.push("/user/order-success")
   } catch (error) {
-    console.log(error)
-  }
+  console.log(error)
+}
+finally{
+  setPlacingOrder(false)
+}
 }
 
-const handleOnlinePayment=async()=>{if(!position){
-    return null
+const handleOnlinePayment = async () => {
+
+  if (placingOrder) return
+
+  setPlacingOrder(true)
+
+  if (!position) {
+    setPlacingOrder(false)
+    return
   }
   try {
+
+    if (
+  !address.fullName ||
+  !address.mobile ||
+  !address.city ||
+  !address.state ||
+  !address.pincode ||
+  !address.fullAddress
+){
+  alert("Please complete delivery address")
+  setPlacingOrder(false)
+  return
+}
+
     const result=await axios.post("/api/user/payment",{
       userId:userData?._id,
       items:carData.map(item=>(
@@ -256,8 +301,11 @@ const handleOnlinePayment=async()=>{if(!position){
     })
     window.location.href=result.data.url
   } catch (error) {
-    console.log(error)
-  }
+  console.log(error)
+}
+finally{
+  setPlacingOrder(false)
+}
 }
 
 const handleCurrentLocation=()=>{
@@ -654,11 +702,13 @@ const handleCurrentLocation=()=>{
         </div>
       </div>
       <motion.button
-whileTap={{scale: carData.length===0 ? 1 : 0.9}}
-disabled={carData.length===0}
+whileTap={{
+scale: carData.length===0 || placingOrder ? 1 : 0.9
+}}
+disabled={carData.length===0 || placingOrder}
 className={`w-full mt-6 py-3 rounded-full font-semibold transition-all
 ${
-carData.length===0
+carData.length===0 || placingOrder
 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
 : "bg-green-600 text-white hover:bg-green-700"
 }`}
@@ -670,13 +720,14 @@ carData.length===0
         }
       }}>
         {
-carData.length===0
+placingOrder
+? "Processing..."
+: carData.length===0
 ? "Cart Empty"
 : paymentMethod==="cod"
 ? "Place Order"
 : "Pay & Place Order"
-}
-      </motion.button>
+}</motion.button>
         </motion.div>
       </div>
     </div>
