@@ -7,12 +7,15 @@ import { useSelector } from 'react-redux'
 import LiveMap from './LiveMap'
 import DeliveryChat from './DeliveryChat'
 import { Loader } from 'lucide-react'
+import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { useRouter } from 'next/navigation'
 
 interface ILocation{
     latitude:number,
     longitude:number
 }
-function DeliveryBoyDashboard() {
+function DeliveryBoyDashboard({earning}:{earning:number}) {
+    const router = useRouter()
     const [assignments,setAssignments]=useState<any[]>([])
     const {userData}=useSelector((state:RootState)=>state.user)
     const [activeOrder,setActiveOrder]=useState<any>(null)
@@ -114,7 +117,9 @@ function DeliveryBoyDashboard() {
                     latitude:result.data.assignment.order.address.latitude,
                     longitude:result.data.assignment.order.address.longitude
                 })
-           }
+           }else{
+    setActiveOrder(null)
+}
            
         } catch (error) {
             console.log(error)
@@ -150,18 +155,21 @@ function DeliveryBoyDashboard() {
 
         setVerifyOtpLoading(true)
         try {
-            const result=await axios.post("/api/delivery/otp/verify",{orderId:activeOrder.order._id,otp})
-            console.log(result.data)
-            setActiveOrder(null)
+            const result = await axios.post("/api/delivery/otp/verify", {
+    orderId: activeOrder.order._id,
+    otp
+})
 
 setShowOtpBox(false)
 setOtp("")
 setOtpError("")
 
-setDeliveryCompleted(true)
-setAssignments([])
-
+await fetchcurrentOrder()
 await fetchAssignments()
+
+router.refresh()
+
+setDeliveryCompleted(true)
 
 setVerifyOtpLoading(false)
 
@@ -170,6 +178,87 @@ setVerifyOtpLoading(false)
             setVerifyOtpLoading(false)
             await fetchcurrentOrder()
         }
+    }
+
+    if(!activeOrder && assignments.length===0){
+
+        const todayEarning=[
+            {name:"Today",
+             earning,
+             deliveries:earning/40
+            }
+        ]
+        return(
+            <div
+className="
+pt-28
+pb-10
+min-h-screen
+bg-gradient-to-br
+from-white
+via-green-50
+to-lime-50
+px-6
+flex
+flex-col
+items-center
+">
+
+    
+                <div className='max-w-xl w-full text-center'>
+                    <h2 className="
+text-4xl
+font-black
+tracking-tight
+text-gray-800
+">No Active Deliveries 🚛</h2>
+                    <p className="
+mt-3
+text-lg
+text-gray-500
+mb-10
+">Stay Online to receive new orders</p>
+
+                    <div
+className="
+rounded-[32px]
+bg-white/60
+backdrop-blur-xl
+border
+border-white/50
+shadow-[0_20px_60px_rgba(0,0,0,0.08)]
+p-8
+">
+                        <h2
+className="
+text-xl
+font-bold
+text-green-700
+mb-6
+">Today's Performance</h2>
+                        <ResponsiveContainer width="100%" height={300}>
+                              <BarChart data={todayEarning}>
+                                <XAxis dataKey="name"/>
+                                <YAxis/>
+                                <Tooltip/>
+                                <Legend/>
+                                <Bar dataKey="earnings" name="Earnings (₹)"/>
+                                <Bar dataKey="deliveries" name="Deliveries"/>
+                              </BarChart>
+                          </ResponsiveContainer>
+
+                          <p
+className="
+mt-8
+text-3xl
+font-black
+text-green-600
+">{earning || 0} Earned today</p>
+               
+                    </div>
+                </div>
+            </div>
+        )
     }
 
     if(activeOrder && userLocation){

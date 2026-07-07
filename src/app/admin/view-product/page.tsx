@@ -40,17 +40,20 @@ const units = [
 function ViewGrocery() {
   const router = useRouter();
   const [groceries, setGroceries] = useState<IGrocery[]>();
+  const [search,setSearch]=useState("");
   const [editing, setEditing] = useState<IGrocery | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [backendImage,setBackendImage]=useState<Blob | null>(null)
   const [loading,setLoading]=useState(false)
   const [deleteLoading,setDeleteLoading]=useState(false)
+  const [filltered,setFilltered]=useState<IGrocery[]>()
 
   useEffect(() => {
     const getGroceries = async () => {
       try {
         const result = await axios.get("/api/admin/get.grocery");
         setGroceries(result.data);
+        setFilltered(result.data);
       } catch (error) {
         console.log(error);
       }
@@ -63,6 +66,32 @@ function ViewGrocery() {
       setImagePreview(editing.image);
     }
   }, [editing]);
+
+useEffect(() => {
+  if (!groceries) return;
+
+  const q = search.trim().toLowerCase();
+
+  if (!q) {
+    setFilltered(groceries);
+    return;
+  }
+
+  const nameResults = groceries.filter((g) =>
+    g.name.toLowerCase().includes(q)
+  );
+
+  if (nameResults.length > 0) {
+    setFilltered(nameResults);
+    return;
+  }
+
+  const categoryResults = groceries.filter((g) =>
+    g.category.toLowerCase().includes(q)
+  );
+
+  setFilltered(categoryResults);
+}, [search, groceries]);
 
   const handleImageUpload=(e:React.ChangeEvent<HTMLInputElement>)=>{
     const file=e.target.files?.[0]
@@ -104,6 +133,8 @@ function ViewGrocery() {
         console.log(error)
     }
   }
+
+  
   return (
     <div className="pt-14 max-w-7xl mx-auto px-4 md:px-6 pb-24">
       <motion.div
@@ -183,7 +214,7 @@ transition-all"
         <Search className="w-6 h-6 text-green-600 mr-4" />
         <input
           type="text"
-          placeholder="Search by name or category..."
+          
           className="
 w-full
 bg-transparent
@@ -191,15 +222,39 @@ outline-none
 text-lg
 text-gray-700
 placeholder:text-gray-400"
+placeholder="Search by name or category..." value={search} onChange={(e)=>setSearch(e.target.value)}
         />
       </motion.form>
       <div className="space-y-6 mt-14">
-        {groceries?.map((g, i) => (
-          <motion.div
-            key={i}
-            whileHover={{ scale: 1.01 }}
-            transition={{ type: "spring", stiffness: 100 }}
-            className="
+
+  {filltered?.length === 0 && (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col items-center justify-center py-24"
+    >
+      <Package className="w-20 h-20 text-gray-300" />
+
+      <h2 className="mt-5 text-2xl font-bold text-gray-700">
+        No Products Found
+      </h2>
+
+      <p className="mt-2 text-gray-500">
+        We couldn't find any product matching
+        <span className="font-semibold text-green-600">
+          {" "}
+          "{search}"
+        </span>.
+      </p>
+    </motion.div>
+  )}
+
+  {filltered?.map((g, i) => (
+    <motion.div
+      key={i}
+      whileHover={{ scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 100 }}
+      className="
 group
 bg-white
 rounded-[30px]
@@ -210,9 +265,9 @@ flex flex-col md:flex-row
 items-center md:items-start
 gap-6
 p-5 md:p-7"
-          >
-            <div
-              className="
+    >
+      <div
+        className="
 relative
 w-32 h-32 sm:w-40 sm:h-40
 rounded-3xl
@@ -220,23 +275,23 @@ overflow-hidden
 bg-gradient-to-br from-gray-50 to-gray-100
 border border-gray-100
 shadow-md"
-            >
-              <Image
-                src={g.image}
-                alt={g.name}
-                fill
-                className="object-cover group-hover:scale-110 duration-500"
-              />
-            </div>
+      >
+        <Image
+          src={g.image}
+          alt={g.name}
+          fill
+          className="object-cover group-hover:scale-110 duration-500"
+        />
+      </div>
 
-            <div className="flex-1 flex flex-col justify-between w-full ">
-              <div>
-                <h3 className="text-xl font-bold text-gray-800">{g.name}</h3>
-                <p className="text-sm text-gray-700 mt-1">{g.category}</p>
-              </div>
+      <div className="flex-1 flex flex-col justify-between w-full">
+        <div>
+          <h3 className="text-xl font-bold text-gray-800">{g.name}</h3>
+          <p className="text-sm text-gray-700 mt-1">{g.category}</p>
+        </div>
 
-              <div
-                className="
+        <div
+          className="
 mt-5
 flex
 flex-col
@@ -244,13 +299,16 @@ md:flex-row
 md:items-center
 md:justify-between
 gap-4"
-              >
-                <p className="text-2xl font-bold text-green-600">
-                  ₹{g.price}/
-                  <span className="text-gray-400 text-sm ml-1">{g.unit}</span>
-                </p>
-                <button
-                  className="
+        >
+          <p className="text-2xl font-bold text-green-600">
+            ₹{g.price}/
+            <span className="text-gray-400 text-sm ml-1">
+              {g.unit}
+            </span>
+          </p>
+
+          <button
+            className="
 px-6 py-3
 rounded-2xl
 bg-gradient-to-r from-green-600 to-emerald-500
@@ -262,15 +320,16 @@ hover:shadow-2xl
 transition-all
 flex items-center gap-2
 w-full md:w-auto justify-center"
-                  onClick={() => setEditing(g)}
-                >
-                  <Pencil size={15} /> Edit
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        ))}
+            onClick={() => setEditing(g)}
+          >
+            <Pencil size={15} /> Edit
+          </button>
+        </div>
       </div>
+    </motion.div>
+  ))}
+
+</div>
 
       <AnimatePresence>
         {editing && (

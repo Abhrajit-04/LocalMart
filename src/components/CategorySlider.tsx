@@ -1,9 +1,14 @@
 'use client'
-import { Baby, Box, ChevronLeft, Coffee, Cookie, Flame, Grape, Heart, Home, Milk, Wheat } from 'lucide-react'
+import { Baby, Box, ChevronLeft, Coffee, Cookie, Flame, Grape, Heart, Home, Milk, Wheat,Package } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
+import { useRouter,useSearchParams } from 'next/navigation'
 import { motion } from "motion/react"
 
 function CategorySlider() {
+  const router = useRouter()
+const searchParams = useSearchParams()
+
+const activeCategory = searchParams.get("category")
   const scrollRef = useRef<HTMLDivElement>(null)
   const [showLeft, setShowLeft] = useState(false)
   const [showRight, setShowRight] = useState(false)
@@ -51,6 +56,13 @@ function CategorySlider() {
   }, [])
 
   const categories = [
+    {
+  id: "all",
+  name: "All",
+  slug: "all",
+  icon: Package,
+  color: "bg-gray-100 text-gray-700"
+},
     { id: "fruits-vegetables", name: "Fruits & Vegetables", slug: "fruits-vegetables", icon: Grape, color: "bg-green-100 text-green-600" },
     { id: "dairy-eggs", name: "Dairy & Eggs", slug: "dairy-eggs", icon: Milk, color: "bg-blue-100 text-blue-600" },
     { id: "rice-atta-grains", name: "Rice, Atta & Grains", slug: "rice-atta-grains", icon: Wheat, color: "bg-yellow-100 text-yellow-600" },
@@ -104,15 +116,98 @@ function CategorySlider() {
             const Icon = category.icon
             return (
               <motion.div
-                key={category.id}
-                whileHover={{ y: -6 }}
-                className={`min-w-[150px] md:min-w-[180px] flex flex-col items-center justify-center rounded-xl 
-                shadow-[0_8px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_30px_rgba(0,0,0,0.15)] 
-                ${category.color} cursor-pointer transition-all duration-300`}
-              >
+  key={category.id}
+  whileHover={{
+    y: -6,
+    scale: activeCategory === category.name ? 1.08 : 1.03,
+  }}
+  animate={{
+    scale: activeCategory === category.name ? 1.08 : 1,
+    y: activeCategory === category.name ? -8 : 0,
+  }}
+  transition={{
+    type: "spring",
+    stiffness: 280,
+    damping: 20,
+  }}
+  onClick={() => {
+
+  if (category.name === "All") {
+
+    router.push("/", {
+      scroll: false,
+    })
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    })
+
+  } else {
+
+    router.push(
+      `/?category=${encodeURIComponent(category.name)}`,
+      {
+        scroll: false,
+      }
+    )
+
+    setTimeout(() => {
+      document
+        .getElementById("products")
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        })
+    }, 200)
+  }
+}}
+  className={`
+relative
+overflow-hidden
+min-w-[150px]
+md:min-w-[180px]
+flex flex-col
+items-center
+justify-center
+rounded-2xl
+cursor-pointer
+transition-all
+duration-300
+shadow-[0_8px_20px_rgba(0,0,0,0.08)]
+
+${
+  activeCategory === category.name
+    ? `
+      bg-white/80
+      backdrop-blur-xl
+      border border-emerald-300
+      ring-2 ring-emerald-200
+      shadow-[0_18px_45px_rgba(16,185,129,0.28)]
+      z-20
+    `
+    : `
+      ${category.color}
+      hover:shadow-[0_12px_30px_rgba(0,0,0,0.15)]
+    `
+}
+`}
+>
                 <div className='flex flex-col items-center justify-center p-5'>
-                  <Icon className='w-10 h-10 text-green-700 mb-3' />
-                  <p className='text-center text-sm md:text-base font-semibold text-gray-700'>
+                  <Icon
+  className={`w-10 h-10 mb-3 transition-all duration-300 ${
+    activeCategory === category.name
+      ? "text-emerald-600 scale-110"
+      : "text-green-700"
+  }`}
+/>
+                 <p
+  className={`text-center text-sm md:text-base font-semibold transition-all duration-300 ${
+    activeCategory === category.name
+      ? "text-emerald-700"
+      : "text-gray-700"
+  }`}
+>
                     {category.name}
                   </p>
                 </div>

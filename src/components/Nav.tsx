@@ -1,6 +1,6 @@
 'use client'
 import mongoose from 'mongoose'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { FormEvent, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Boxes, ClipboardCheck, LogOut, Menu, Package, PlusCircle, Search, ShoppingBag, ShoppingCart, User, X } from 'lucide-react'
 import Image from 'next/image'
@@ -9,6 +9,7 @@ import { signOut } from 'next-auth/react'
 import { createPortal } from 'react-dom'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
+import { useRouter } from 'next/navigation'
 interface IUser {
   _id?: mongoose.Types.ObjectId
   name: string
@@ -24,6 +25,8 @@ function Nav({ user }: { user: IUser }) {
     const [searchBarOpen,setSearchBarOpen]=useState(false)
     const [menuOpen,setMenuOpen]=useState(false)
     const cart=useSelector((state:RootState)=>state.cart)
+    const [search,setSearch]=useState("")
+    const router=useRouter()
     useEffect(()=>{
         const handelClickOutside=(e:MouseEvent)=>{
             if(profileDropDown.current && !profileDropDown.current.contains(e.target as Node)){
@@ -33,6 +36,40 @@ function Nav({ user }: { user: IUser }) {
         document.addEventListener("mousedown",handelClickOutside)
         return ()=>document.removeEventListener("mousedown",handelClickOutside)
     },[])
+
+    useEffect(() => {
+  const delay = setTimeout(() => {
+    const query = search.trim()
+
+    if (query.length >= 2) {
+      router.replace(`/?q=${encodeURIComponent(query)}`, {
+        scroll: false,
+      })
+
+      setTimeout(() => {
+        document
+          .getElementById("products")
+          ?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          })
+      }, 200)
+
+    } else if (query.length === 0) {
+
+      router.replace("/", {
+        scroll: false,
+      })
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      })
+    }
+  }, 300)
+
+  return () => clearTimeout(delay)
+}, [search, router])
 
             const sideBar=menuOpen?createPortal(
                 <AnimatePresence>
@@ -94,7 +131,7 @@ z-[9999]
     LoKart
   </span>
 </Link>
-{user.role=="user"&& <form className="hidden md:flex items-center 
+{user.role=="user"&& <div className="hidden md:flex items-center 
 bg-emerald-50 
 border border-emerald-200 
 rounded-full px-5 py-2.5 w-1/2 max-w-lg 
@@ -107,8 +144,11 @@ transition-all duration-300">
   type="text"
   placeholder="Search for groceries, products..."
   className="bg-transparent outline-none w-full text-gray-700 placeholder-gray-500 px-3"
+  value={search}
+  onChange={(e)=>setSearch(e.target.value)}
+
 />
-      </form>}
+      </div>}
       
 
 <div className="flex items-center gap-3 md:gap-6 relative">
@@ -209,27 +249,85 @@ onClick={()=>setMenuOpen(prev=>!prev)}>
   <AnimatePresence>
   {searchBarOpen && (
     <motion.div
-      initial={{ opacity: 0, y: -20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -20, scale: 0.95 }}
-      transition={{ duration: 0.25 }}
-      className="fixed top-20 left-1/2 -translate-x-1/2 w-[92%] 
-      bg-white/70 backdrop-blur-xl 
-      border border-white/40 
-      rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] 
-      z-40 flex items-center px-4 py-3"
+      initial={{
+    opacity:0,
+    y:-15,
+    scale:0.98
+}}
+
+animate={{
+    opacity:1,
+    y:0,
+    scale:1
+}}
+
+exit={{
+    opacity:0,
+    y:-15,
+    scale:0.98
+}}
+
+transition={{
+    type:"spring",
+    stiffness:260,
+    damping:22
+}}
+      className="
+fixed
+top-20
+left-1/2
+-translate-x-1/2
+
+w-[92%]
+max-w-md
+
+bg-white
+border border-gray-100
+
+rounded-2xl
+
+shadow-[0_18px_45px_rgba(0,0,0,0.15)]
+
+px-5
+py-4
+
+flex
+items-center
+gap-3
+
+z-[9999]
+
+transition-all
+duration-300
+"
     >
       <Search className="text-emerald-600 w-5 h-5 mr-3" />
 
-      <form className="flex-1">
+      <div className="flex-1" >
         <input
           type="text"
           placeholder="What are you looking for?"
-          className="w-full bg-transparent outline-none text-gray-700 placeholder-gray-500"
-        />
-      </form>
+          className="
+flex-1
+bg-transparent
+outline-none
 
-      <button onClick={() => setSearchBarOpen(false)}>
+text-[16px]
+font-medium
+
+text-gray-700
+
+placeholder:text-gray-400
+"
+          value={search}
+  onChange={(e)=>setSearch(e.target.value)}
+        />
+      </div>
+
+      <button onClick={() => {
+  setSearch("")
+  setSearchBarOpen(false)
+}}>
         <X className="text-gray-500 w-5 h-5 hover:text-red-500 transition" />
       </button>
     </motion.div>
