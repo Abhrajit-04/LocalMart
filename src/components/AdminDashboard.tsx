@@ -4,13 +4,21 @@ import connectDb from '@/lib/db'
 import Order from '@/models/order.model'
 import User from '@/models/user.model'
 import Grocery from '@/models/grocery.model'
+import Shop from "@/models/shop.model";
 
 async function AdminDashboard() {
   await connectDb()
   const orders=await Order.find({})
   const users=await User.find({role:"user"})
   const groceries=await Grocery.find({})
+  const shops = await Shop.find({}).sort({ createdAt: -1 });
+  const recentOrders = JSON.parse(
+  JSON.stringify(orders.slice(0, 5))
+);
 
+const recentShops = JSON.parse(
+  JSON.stringify(shops.slice(0, 5))
+);
   const totalOrders=orders.length
   const totalCustomers=users.length
   const pendingDeliveries=orders.filter((o)=>o.status==="pending").length
@@ -37,6 +45,9 @@ async function AdminDashboard() {
   ];
   
   const chartData=[]
+  const pendingShops = shops.filter(
+  (shop) => shop.status === "pending"
+).length;
 
   for (let i = 6; i >=0; i--){
 
@@ -57,15 +68,18 @@ async function AdminDashboard() {
 
   return (
     <>
-       <AdminDashboardClient 
-       earning={
-        {today:todayRevenue,
-          sevenDays:sevenDaysRevenue,
-          total:totalRevenue}
-       }
-       stats={stats}
-       chartData={chartData}
-       /> 
+       <AdminDashboardClient
+  earning={{
+    today: todayRevenue,
+    sevenDays: sevenDaysRevenue,
+    total: totalRevenue,
+  }}
+  stats={stats}
+  chartData={chartData}
+  recentOrders={recentOrders}
+  recentShops={recentShops}
+  pendingShops={pendingShops}
+/>                                                                                                                                                                                                
     </>
   )
 }

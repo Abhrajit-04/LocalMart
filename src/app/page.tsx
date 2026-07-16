@@ -8,7 +8,9 @@ import UserDashboard from '@/components/UserDashboard'
 import connectDb from '@/lib/db'
 import Grocery, { IGrocery } from '@/models/grocery.model'
 import User from '@/models/user.model'
+import Shop, { IShop } from "@/models/shop.model";
 import { redirect } from 'next/navigation'
+import ShopOwnerDashboard from "@/components/ShopOwnerDashboard";
 
 
 
@@ -36,49 +38,88 @@ async function Home(props:{
     redirect("/login")
   }
 
-  const incomplete = !user.mobile || !user.role || (!user.mobile && user.role=="user")
+  const incomplete =
+  !user.mobile ||
+  !user.role ||
+  (user.role === "user" && !user.mobile);
 
   if (incomplete) {
     return <EditRoleMobile />
   }
   const plainuser=JSON.parse(JSON.stringify(user))
 
-  let groceryList:IGrocery[]=[]
+  let shop = null;
 
-  if(user.role==="user"){
-    if (searchParams.q) {
+if (user.role === "shopowner") {
+  shop = await Shop.findOne({
+    ownerId: user._id,
+  });
 
-    groceryList = await Grocery.find({
-        name: {
-            $regex: searchParams.q,
-            $options: "i"
-        }
-    })
-
-}
-else if (searchParams.category) {
-
-    groceryList = await Grocery.find({
-        category: searchParams.category
-    })
-
-}
-else {
-
-    groceryList = await Grocery.find({})
-
-}
+  if (!shop) {
+    redirect("/shop/register");
   }
-  
+
+  if (shop.status === "pending") {
+    redirect("/shop/pending");
+  }
+
+  if (shop.status === "rejected") {
+    redirect("/shop/rejected");
+  }
+
+  if (shop.status === "suspended") {
+    redirect("/shop/suspended");
+  }
+}
+
+ let shopList: IShop[] = [];
+
+  if (user.role === "user") {
+
+  const query: any = {
+    status: "approved",
+    isActive: true,
+  };
+
+  if (searchParams.q) {
+    query.shopName = {
+      $regex: searchParams.q,
+      $options: "i",
+    };
+  }
+
+  if (searchParams.category) {
+    query.category = searchParams.category;
+  }
+
+  shopList = await Shop.find(query).sort({
+    createdAt: -1,
+  });
+
+}
   return (
     <>
       <Nav user={plainuser}/>
       <GeoUpdater userId={plainuser._id.toString()}/>
-      {user.role=="user"?(
-        <UserDashboard groceryList={groceryList}/>
-      ):user.role=="admin"?(
-        <AdminDashboard/>
-      ):<DeliveryBoy/>}
+      {
+user.role === "user" ? (
+
+    <UserDashboard shopList={JSON.parse(JSON.stringify(shopList))} />
+
+) : user.role === "superadmin" ? (
+
+    <AdminDashboard/>
+
+) : user.role === "shopowner" ? (
+
+    <ShopOwnerDashboard />
+
+) : (
+
+    <DeliveryBoy/>
+
+)
+}
     </>
   )
 }

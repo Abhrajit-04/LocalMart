@@ -6,8 +6,13 @@ export interface IUser{
     email:string;
     password?:string;
     mobile?:string;
-    role:"user" | "deliveryboy"| "admin"
+    role:
+"user"
+|"deliveryboy"
+|"shopowner"
+|"superadmin"
     image?:string;
+    selectedShop?:mongoose.Types.ObjectId;
     location: {
     type: {
         type: StringConstructor;
@@ -19,25 +24,66 @@ export interface IUser{
         default: number[];
     };
 },
-socketId:string | null;
-isOnline:Boolean;
+defaultAddress:{
+    type:String,
+    default:""
+},
+
+savedAddresses:[
+{
+label:String,
+
+address:String,
+
+location:{
+type:{
+type:String,
+default:"Point"
+},
+
+coordinates:{
+type:[Number],
+default:[0,0]
+}
+}
+}
+],
+socketId: string | null;
+isOnline: boolean;
+isActive: boolean;
 }
 const userSchema=new mongoose.Schema<IUser>({
 name:{type:String,required:true},
 email:{type:String,required:true,unique:true},
 password:{type:String,required:false},
 mobile:{type:String,required:false},
-role:{type:String,enum:["user","deliveryboy","admin"],default:"user"},
+role:{type:String,enum:[
+"user",
+"deliveryboy",
+"shopowner",
+"superadmin"
+],default:"user"},
 image:{type:String},
+selectedShop:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Shop",
+    default:null
+},
 location:{type:{type:String,enum:["Point"],default:"Point"},
 coordinates:{type:[Number],default:[0,0]}},
-socketId:{
+socketId: {
     type: String,
     default: null
 },
-isOnline:{
+
+isOnline: {
     type: Boolean,
     default: false
+},
+
+isActive: {
+    type: Boolean,
+    default: true
 }
 },{timestamps:true})
 

@@ -7,7 +7,11 @@ interface IUser {
   email: string;
   password?: string;
   mobile?: string;
-  role: "user" | "deliveryboy" | "admin";
+ role:
+  | "user"
+  | "shopowner"
+  | "deliveryboy"
+  | "superadmin";
   image?: string;
 }
 

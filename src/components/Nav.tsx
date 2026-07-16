@@ -16,7 +16,11 @@ interface IUser {
   email: string
   password?: string
   mobile?: string
-  role: "user" | "deliveryboy" | "admin"
+  role:
+"user"
+| "shopowner"
+| "deliveryboy"
+| "superadmin"
   image?: string
 }
 function Nav({ user }: { user: IUser }) {
@@ -181,7 +185,7 @@ transition-all duration-200" onClick={()=>setSearchBarOpen((prev)=>!prev)}>
         {cart.carData.length} </span>
   </Link></>}
 
-        {user.role=="admin" && <>
+        {user.role=="superadmin" &&  <>
             <div className='hidden md:flex items-center gap-4'>
                 <Link href={"/admin/add-product"} className='flex items-center gap-2 bg-gray-300 text-black font-semibold px-4 py-2 rounded-full hover:bg-green-200 hover:scale-105 transition-all'><PlusCircle className='w-5 h-5'/> Add Product</Link>
                 <Link href={"/admin/view-product"} className='flex items-center gap-2 bg-gray-300 text-black font-semibold px-4 py-2 rounded-full hover:bg-green-200 hover:scale-105 transition-all'><Boxes className='w-5 h-5'/> View Product</Link>

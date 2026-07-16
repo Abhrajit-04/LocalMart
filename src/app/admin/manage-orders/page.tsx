@@ -42,7 +42,13 @@ interface IOrder{
 }
 
 function ManageOrder() {
+
     const [orders,setOrders]=useState<IOrder[]>([])
+
+    const [search,setSearch]=useState("")
+
+    const [status,setStatus]=useState("all")
+
     const router=useRouter()
     useEffect(()=>{
         const getOrders=async ()=>{
@@ -83,9 +89,21 @@ function ManageOrder() {
   socket.on("new-order", handleNewOrder)
   socket.on("order-assigned", handleOrderAssigned)
 
+  const handleAdminOrderUpdated = async () => {
+  try {
+    const result = await axios.get("/api/admin/get-orders");
+    setOrders(result.data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+socket.on("admin-order-updated", handleAdminOrderUpdated);
+
   return () => {
-    socket.off("new-order", handleNewOrder)
-    socket.off("order-assigned", handleOrderAssigned)
+    socket.off("new-order", handleNewOrder);
+  socket.off("order-assigned", handleOrderAssigned);
+  socket.off("admin-order-updated", handleAdminOrderUpdated);
   }
 }, [])
     useEffect(():any=>{
@@ -103,24 +121,193 @@ function ManageOrder() {
 
   return ()=>socket.off("order-status-update")
 },[])
+
+const filteredOrders = orders.filter((order) => {
+
+  const searchMatch =
+    order.address.fullName
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+  const statusMatch =
+    status === "all" ||
+    order.status === status;
+
+  return searchMatch && statusMatch;
+
+});
   return (
-    <div className='min-h-screen bg-gray-50 w-full'>
-        <div className='fixed top-0 left-0 w-full backdrop-blur-lg bg-white/70 shadow-sm border-b z-50'>
-                  <div className='max-w-3xl mx-auto flex items-center gap-4 px-4 py-3'>
-                    <button
-                      className='p-2 bg-gray-100 rounded-full hover:bg-gray-200 active:scale-95 transition'
-                      onClick={() => router.push("/")}
-                    >
-                      <ArrowLeft className='text-green-700' size={24} />
-                    </button>
-                    <h1 className='text-xl font-bold text-gray-800'>Manage Orders</h1>
-                  </div>
-                </div>
-                <div className='max-w-4xl mx-auto px-4 pt-24 pb-16 space-y-8'>
-                    <div className='space-y-6'>
-  {orders?.map((order,index)=>(
-    <AdminOrderCard key={order._id?.toString()} order={order}/>
-  ))}
+    <div className="min-h-screen bg-gray-100">
+       <div className="pt-28 pb-10 max-w-7xl mx-auto px-6">
+
+<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+
+<div className="flex items-center gap-4">
+
+<button
+className="
+p-3
+rounded-2xl
+bg-white
+border
+border-gray-200
+shadow-sm
+hover:shadow-lg
+hover:-translate-x-1
+hover:bg-green-50
+transition-all
+duration-300"
+onClick={()=>router.push("/")}
+>
+
+<ArrowLeft className="text-green-700"/>
+
+</button>
+
+<div>
+
+<h1 className="text-5xl font-black">
+
+Manage Orders
+
+</h1>
+
+<p className="text-gray-500 mt-2">
+
+Track, assign and manage every customer order.
+
+</p>
+
+<p
+className="
+inline-flex
+items-center
+mt-4
+rounded-full
+bg-green-100
+text-green-700
+px-4
+py-2
+font-semibold">
+📦 {orders.length} Orders
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+                <div className="max-w-7xl mx-auto px-6 pt-10 pb-16 space-y-8"> 
+
+                  <div
+className="
+bg-white
+rounded-3xl
+shadow-md
+hover:shadow-lg
+transition-all
+duration-300
+border
+border-gray-100
+p-6
+flex
+flex-col
+lg:flex-row
+gap-5
+mb-8">
+
+<input
+placeholder="Search customer..."
+value={search}
+onChange={(e)=>setSearch(e.target.value)}
+className="
+flex-1
+rounded-2xl
+border
+border-gray-200
+bg-white
+px-5
+py-4
+shadow-sm
+outline-none
+focus:outline-none
+focus:border-green-500
+focus:ring-4
+focus:ring-green-500/20
+transition-all
+duration-300"
+/>
+
+<select
+value={status}
+onChange={(e)=>setStatus(e.target.value)}
+className="
+rounded-2xl
+border
+border-gray-200
+bg-white
+px-5
+py-4
+shadow-sm
+outline-none
+focus:outline-none
+focus:ring-4
+focus:ring-green-500/20
+focus:border-green-500
+transition-all
+duration-300
+"
+>
+
+<option value="all">
+All Status
+</option>
+
+<option value="pending">
+Pending
+</option>
+
+<option value="out of delivery">
+Out For Delivery
+</option>
+
+<option value="delivered">
+Delivered
+</option>
+
+</select>
+
+</div>
+
+                    <div className='space-y-8'>
+
+  {filteredOrders.map((order) => (
+
+  <AdminOrderCard
+    key={order._id?.toString()}
+    order={order}
+  />
+
+))}
+
+{filteredOrders.length === 0 && (
+
+<div className="bg-white rounded-3xl p-16 text-center shadow">
+
+<h2 className="text-3xl font-bold">
+No Orders Found
+</h2>
+
+<p className="text-gray-500 mt-2">
+There are no orders matching your search.
+</p>
+
+</div>
+
+)}
+
 </div>
                 </div>
             

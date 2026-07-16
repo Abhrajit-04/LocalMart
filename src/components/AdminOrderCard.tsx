@@ -6,6 +6,7 @@ import Image from 'next/image'
 import axios from 'axios'
 import mongoose from 'mongoose'
 import { IUser } from '@/models/user.model'
+import Link from "next/link";
 interface IOrder{
     _id?:mongoose.Types.ObjectId
     user:mongoose.Types.ObjectId
@@ -63,7 +64,17 @@ function AdminOrderCard({order}:{order:IOrder}) {
     initial={{opacity:0,y:20}}
     animate={{opacity:1,y:0}}
     transition={{duration:0.4}}
-    className='bg-white shadow-md hover:shadow-lg border border-gray-100 rounded-2xl p-6 transition-all'
+    className="
+bg-white
+rounded-3xl
+border
+border-gray-100
+shadow-md
+hover:shadow-xl
+hover:-translate-y-1
+transition-all
+duration-300
+p-6"
     >
         <div className='flex flex-col md:flex-row md:items-start md:justify-between gap-4'>
             <div className='space-y-1'>
@@ -193,6 +204,28 @@ function AdminOrderCard({order}:{order:IOrder}) {
                         </div>
 
                 <div className='border-t pt-3 mt-3 flex justify-between items-center text-sm font-semibold text-gray-800'>
+
+                <div className="mt-5 flex justify-end">
+
+  <Link
+    href={`/admin/manage-orders/${order._id}`}
+    className="
+      px-5
+      py-2.5
+      rounded-xl
+      bg-green-600
+      hover:bg-green-700
+      text-white
+      font-semibold
+      transition-all
+      duration-300
+      hover:shadow-lg"
+  >
+    View Details →
+  </Link>
+
+</div>
+
                     <div className='flex items-center gap-2 text-gray-700 text-sm'>
                         <Truck size={16} className='text-green-600'/>
                         <span>Delivery: <span className='text-green-700 font-semibold'>{status}</span></span>

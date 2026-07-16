@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from "axios";
 
 async function emitEventHandler(
   event: string,
@@ -7,12 +7,16 @@ async function emitEventHandler(
 ) {
   try {
     await axios.post(
-      `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, // ✅ FIXED
-      { socketId, event, data }
-    )
+      `${process.env.SOCKET_SERVER}/emit`,
+      {
+        socketId,
+        event,
+        data,
+      }
+    );
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 }
 
-export default emitEventHandler
+export default emitEventHandler;

@@ -107,10 +107,10 @@ useEffect(() => {
     try {
         const formData=new FormData()
         formData.append("groceryId",editing?._id?.toString()!)
-                formData.append("name",editing?.name)
-                formData.append("category",editing?.category)
-                formData.append("price",editing?.price)
-                formData.append("unit",editing?.unit)
+                formData.append("name",editing?.name ?? "")
+                formData.append("category",editing?.category ?? "")
+                formData.append("price", editing?.price?.toString() ?? "")
+                formData.append("unit",editing?.unit ?? "")
                 if(backendImage){
                     formData.append("image",backendImage)
                 }
@@ -427,7 +427,7 @@ rounded-3xl"
                   placeholder="Price"
                   value={editing.price}
                   onChange={(e) =>
-                    setEditing({ ...editing, price: e.target.value })
+                    setEditing({ ...editing, price: Number(e.target.value) })
                   }
                   className="w-full px-4 py-4 rounded-2xl border border-gray-200 bg-gray-50 focus:ring-2 focus:ring-green-500 outline-none transition"
                 />

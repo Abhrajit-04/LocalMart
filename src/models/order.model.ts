@@ -4,17 +4,25 @@ import mongoose from "mongoose";
 export interface IOrder{
     _id?:mongoose.Types.ObjectId
     user:mongoose.Types.ObjectId
-    items:[
-        {
-            grocery:mongoose.Types.ObjectId,
-            name:string,
-            price:string,
-            unit:string,
-            image:string,
-            quantity:number
-        }
-    ]
-    ,
+    
+    items: [
+  {
+    grocery: mongoose.Types.ObjectId;
+
+    shopId: mongoose.Types.ObjectId;
+
+    name: string;
+
+    price: string;
+
+    unit: string;
+
+    image: string;
+
+    quantity: number;
+  }
+];
+    
     isPaid:boolean,
     totalAmount:number,
     paymentMethod:"cod" | "online"
@@ -44,20 +52,31 @@ const orderSchema=new mongoose.Schema<IOrder>({
         ref:"User",
         required:true
     },
-    items:[
-        {
-            grocery:{
-                type:mongoose.Schema.Types.ObjectId,
-                ref:"Grocery",
-                required:true
-            },
-            name:String,
-            price:String,
-            unit:String,
-            image:String,
-            quantity:Number
-        }
-    ],
+   items: [
+  {
+    grocery: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Grocery",
+      required: true,
+    },
+
+    shopId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Shop",
+      required: true,
+    },
+
+    name: String,
+
+    price: String,
+
+    unit: String,
+
+    image: String,
+
+    quantity: Number,
+  },
+],
     paymentMethod:{
         type:String,
         enum:["cod","online"],

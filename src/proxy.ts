@@ -7,6 +7,8 @@ export async function proxy(req: NextRequest) {
   const publicRoutes = [
   "/login",
   "/register",
+  "/shop/register",
+"/api/shop/register",
   "/api/auth",
   "/unauthorized",
   "/api/user/stripe/webhook",
@@ -35,11 +37,11 @@ export async function proxy(req: NextRequest) {
 
     const role = token.role;
 
-    if (pathname.startsWith("/admin") && role !== "admin") {
+    if (pathname.startsWith("/admin") && role !== "superadmin") {
         return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
 
-    if (pathname.startsWith("/delivery") && role !== "deliveryBoy") {
+    if (pathname.startsWith("/delivery") && role !== "deliveryboy") {
         return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
 

@@ -1,6 +1,7 @@
 import connectDb from "@/lib/db";
 import Order from "@/models/order.model";
 import User from "@/models/user.model";
+import Grocery from "@/models/grocery.model";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
@@ -25,9 +26,24 @@ export async function POST(req:NextRequest){
             )
         }
 
+        const updatedItems = await Promise.all(
+  items.map(async (item: any) => {
+    const grocery = await Grocery.findById(item.grocery);
+
+    if (!grocery) {
+      throw new Error("Product not found");
+    }
+
+    return {
+      ...item,
+      shopId: grocery.shopId,
+    };
+  })
+);
+
         const newOrder=await Order.create({
             user:userId,
-            items,
+            items: updatedItems,
             paymentMethod,
             totalAmount,
             address

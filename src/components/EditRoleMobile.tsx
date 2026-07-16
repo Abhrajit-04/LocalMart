@@ -2,17 +2,18 @@
 import { useEffect, useState } from 'react'
 import React from 'react'
 import { motion } from "motion/react"
-import { ArrowRight, Bike, User, UserCog } from 'lucide-react'
+import { ArrowRight, Bike, User, UserCog , Store } from 'lucide-react'
 import axios from 'axios'
 import { redirect, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 
 function EditRoleMobile() {
   const [roles, setRoles] = useState([
-    { id: "admin", label: "Admin", icon: UserCog },
-    { id: "user", label: "User", icon: User },
-    { id: "deliveryboy", label: "DeliveryBoy", icon: Bike }
-  ])
+  { id: "superadmin", label: "Super Admin", icon: UserCog },
+  { id: "shopowner", label: "Shop Owner", icon: Store },
+  { id: "user", label: "User", icon: User },
+  { id: "deliveryboy", label: "Delivery Boy", icon: Bike },
+])
   const [selectedRole, setSelectedRole] = useState("")
   const [mobile, setMobile] = useState("")
   const {update}=useSession()
@@ -37,9 +38,9 @@ function EditRoleMobile() {
     const checkForAdmin=async ()=>{
     try {
       const result=await axios.get("/api/check-for-admin")
-      if(result.data.adminExist){
-        setRoles(prev=>prev.filter(r=>r.id!=="admin"))
-      }
+      if (result.data.adminExist) {
+    setRoles(prev => prev.filter(r => r.id !== "superadmin"))
+}
     } catch (error) {
       console.log(error)
     }

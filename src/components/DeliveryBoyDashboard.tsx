@@ -68,27 +68,14 @@ function DeliveryBoyDashboard({earning}:{earning:number}) {
    useEffect(() => {
     const socket = getSocket()
 
-   const handleNewAssignment = (deliveryAssignment:any) => {
+   const handleNewAssignment = async () => {
 
-    if (!deliveryAssignment?.order) {
-        return
-    }
+    setDeliveryCompleted(false);
 
-    setDeliveryCompleted(false)
+    await fetchAssignments();
 
-    setAssignments((prev) => {
+    await fetchcurrentOrder();
 
-        const exists = prev.some(
-            item => item?._id?.toString() ===
-                    deliveryAssignment?._id?.toString()
-        )
-
-        if (exists) {
-            return prev
-        }
-
-        return [...prev, deliveryAssignment]
-    })
 }
 
     socket.on("new-assignment", handleNewAssignment)

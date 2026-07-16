@@ -4,6 +4,7 @@ import DeliveryAssignment from "@/models/deliveryAssignment.model";
 import Order from "@/models/order.model";
 import User from "@/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 export async function POST(
   req: NextRequest,
@@ -11,6 +12,15 @@ export async function POST(
 ) {
   try {
     await connectDb();
+
+    const session = await auth();
+
+if (session?.user?.role !== "superadmin") {
+    return NextResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+    );
+}
 
     const { orderId } = await params; 
 

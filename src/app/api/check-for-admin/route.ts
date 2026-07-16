@@ -3,7 +3,9 @@ import { NextResponse } from "next/server";
 
 export async function GET(){
     try {
-        const user=await User.find({role:"admin"})
+        const user=await User.find({
+    role:"superadmin"
+})
         if(user.length>0){
             return NextResponse.json(
             {adminExist:true},
