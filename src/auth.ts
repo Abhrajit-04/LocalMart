@@ -36,20 +36,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
 
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      profile(profile: any) {
-        return {
-          id: profile.email, // ✅ temporary
-          name: profile.name,
-          email: profile.email,
-          image: profile.picture,
-          role: "user",
-        }
-      },
-    }),
-  ],
+   Google({
+  clientId: process.env.GOOGLE_CLIENT_ID!,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+})
 
   callbacks: {
     async signIn({ user }) {
@@ -68,6 +58,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       // ✅ IMPORTANT: force Mongo ID
       user.id = dbUser._id.toString()
+        user.name = dbUser.name
+user.email = dbUser.email
+user.image = dbUser.image
 
       ;(user as any).role = dbUser.role
 
@@ -76,13 +69,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
    async jwt({ token, user, trigger, session }) {
 
-  if (user) {
-    token.id = user.id
-    token.name = user.name
-    token.email = user.email
-    token.image = user.image
-  }
-
+ if (user) {
+  token.id = user.id
+  token.name = user.name
+  token.email = user.email
+  token.image = user.image
+  token.role = (user as any).role
+}
   if (token.email) {
     await connectDb()
 
